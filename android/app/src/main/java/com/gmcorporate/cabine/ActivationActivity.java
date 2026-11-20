@@ -28,6 +28,7 @@ public class ActivationActivity extends Activity {
     private static final String CODE_HASH = "b5dcd88b57cab46ea938476a61bc0f54e52b46c364a1b2bcfc14e2f9b4721d1e";
     private static final String PREFS = "gm_activation";
     private static final int MAX_TRIES = 5;
+    private static final char[] HEX = "0123456789abcdef".toCharArray();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,24 +65,41 @@ public class ActivationActivity extends Activity {
             }
             String entered = code.getText().toString().trim();
             if (entered.isEmpty()) { error.setText("Entrez le code d'activation."); return; }
-            if (CODE_HASH.equals(hash(entered))) {
-                p.edit()
-                        .putString("device", deviceTag(this))
-                        .putLong("activatedAt", now)
-                        .putInt("tries", 0)
-                        .apply();
-                openApp();
-            } else {
-                int tries = p.getInt("tries", 0) + 1;
-                SharedPreferences.Editor ed = p.edit().putInt("tries", tries);
-                if (tries >= MAX_TRIES) ed.putLong("lockedUntil", now + 60_000L * Math.min(10, tries - MAX_TRIES + 1));
-                ed.apply();
-                code.setText("");
-                error.setText(tries >= MAX_TRIES
-                        ? "Code incorrect. Activation bloquée quelques minutes."
-                        : "Code d'activation incorrect.");
-            }
+            // Le calcul de l'empreinte se fait hors du fil principal : l'écran reste fluide.
+            activate.setEnabled(false);
+            activate.setText("Vérification…");
+            error.setText("");
+            new Thread(() -> {
+                boolean ok = CODE_HASH.equals(hash(entered));
+                runOnUiThread(() -> {
+                    activate.setEnabled(true);
+                    activate.setText("Activer l'application");
+                    onResult(ok, code, error);
+                });
+            }).start();
         });
+    }
+
+    private void onResult(boolean ok, EditText code, TextView error) {
+        SharedPreferences p = getSharedPreferences(PREFS, MODE_PRIVATE);
+        long now = System.currentTimeMillis();
+        if (ok) {
+            p.edit()
+                    .putString("device", deviceTag(this))
+                    .putLong("activatedAt", now)
+                    .putInt("tries", 0)
+                    .apply();
+            openApp();
+        } else {
+            int tries = p.getInt("tries", 0) + 1;
+            SharedPreferences.Editor ed = p.edit().putInt("tries", tries);
+            if (tries >= MAX_TRIES) ed.putLong("lockedUntil", now + 60_000L * Math.min(10, tries - MAX_TRIES + 1));
+            ed.apply();
+            code.setText("");
+            error.setText(tries >= MAX_TRIES
+                    ? "Code incorrect. Activation bloquée quelques minutes."
+                    : "Code d'activation incorrect.");
+        }
     }
 
     private void openApp() {
@@ -110,9 +128,12 @@ public class ActivationActivity extends Activity {
     private static String sha256Hex(String s) {
         try {
             byte[] d = MessageDigest.getInstance("SHA-256").digest(s.getBytes(StandardCharsets.UTF_8));
-            StringBuilder sb = new StringBuilder(64);
-            for (byte b : d) sb.append(String.format("%02x", b));
-            return sb.toString();
+            char[] out = new char[64];
+            for (int i = 0; i < 32; i++) {
+                out[2 * i] = HEX[(d[i] >> 4) & 0xF];
+                out[2 * i + 1] = HEX[d[i] & 0xF];
+            }
+            return new String(out);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }

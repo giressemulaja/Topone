@@ -69,6 +69,7 @@ public class MainActivity extends Activity {
             return;
         }
 
+        if (BuildConfig.DEBUG) WebView.setWebContentsDebuggingEnabled(true);
         web = new WebView(this);
         web.setBackgroundColor(getColor(R.color.gm_bg));
         setContentView(web);
