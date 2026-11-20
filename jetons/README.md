@@ -18,6 +18,11 @@ Les deux outils doivent utiliser **le même mot secret**.
 | Copie parfaite présentée avant le vrai client | Le code de retrait (4 chiffres) n'est imprimé nulle part ; sinon, déverrouillage du téléphone devant le responsable. |
 | Photocopie | Cachet sec en relief ou signature au stylo, couleur et série du lot, micro-texte. |
 
+## Un numéro ne sert qu'une fois
+
+- **À l'émission** : l'outil d'impression garde la liste des numéros déjà émis, série par série, dès qu'un PDF est téléchargé ou une impression lancée. Il démarre toujours au prochain numéro libre et bloque le PDF et l'impression si une plage contient un numéro déjà émis. Cette liste est conservée dans le navigateur de l'ordinateur : utilisez toujours le même ordinateur et le même navigateur pour émettre les jetons.
+- **Au comptoir** : le registre refuse un jeton dont le numéro a déjà servi (« Numéro déjà utilisé » au dépôt, « Déjà rendu : copie probable » au retrait). L'historique des numéros n'est jamais effacé (seules les photos anciennes le sont).
+
 ## Connexion
 
 Les deux outils demandent un identifiant et un mot de passe (communiqués séparément au propriétaire de la cabine). Le mot de passe n'est **pas** écrit dans les fichiers : seule son empreinte (SHA-256 répété, avec sel) y figure. La session se verrouille après 15 minutes d'inactivité ; 5 essais ratés bloquent la connexion quelques minutes.
@@ -46,3 +51,8 @@ python3 build.py
 ```
 
 Bibliothèques intégrées (licences dans `src/vendor/`) : qrcode-generator 1.4.4 (MIT), jsQR 1.4.0 (Apache 2.0), html2canvas 1.4.1 (MIT), jsPDF 2.5.1 (MIT).
+
+---
+
+© 2026 Giresse Mulaja. Tous droits réservés.
+Développeur : Giresse Mulaja · Tél. +243 810 000 421 · giressemulaja8@gmail.com

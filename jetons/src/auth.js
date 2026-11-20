@@ -43,6 +43,7 @@ window.CabineAuth = (() => {
       .gate .pw button { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: 0; color: var(--accent); font-family: inherit; font-weight: 600; font-size: .8rem; cursor: pointer; padding: 6px; }
       .gate .go { font-family: inherit; font-weight: 700; font-size: 1rem; border-radius: 10px; padding: 13px; border: 0; background: var(--accent); color: var(--accent-fg); cursor: pointer; }
       .gate .go:disabled { opacity: .55; cursor: progress; }
+      .gate .cr { text-align: center; font-size: .75rem; line-height: 1.5; }
       .gate .err { color: var(--bad, #b3261e); font-weight: 600; font-size: .9rem; min-height: 1.2em; }
       .gate input:focus-visible, .gate button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }`;
     document.head.appendChild(st);
@@ -61,6 +62,7 @@ window.CabineAuth = (() => {
       <label for="g-pass">Mot de passe<span class="pw"><input id="g-pass" type="password" autocomplete="current-password" required><button type="button" id="g-eye">Afficher</button></span></label>
       <div class="err" id="g-err" role="alert"></div>
       <button class="go" type="submit" id="g-go">Se connecter</button>
+      <p class="cr">© 2026 Giresse Mulaja · Tél. +243 810 000 421<br>giressemulaja8@gmail.com</p>
     </form>`;
     document.body.appendChild(g);
     const user = g.querySelector("#g-user"), pass = g.querySelector("#g-pass"), err = g.querySelector("#g-err"), go = g.querySelector("#g-go");

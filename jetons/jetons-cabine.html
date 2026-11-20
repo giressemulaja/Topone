@@ -4,6 +4,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Jetons Cabine de Charge</title>
 <script>document.documentElement.classList.add("locked")</script><style>html.locked body > :not(.gate) { display: none !important; }</style>
+<meta name="author" content="Giresse Mulaja">
+<!-- © 2026 Giresse Mulaja. Tous droits réservés. Développeur : Giresse Mulaja, tél. +243 810 000 421, giressemulaja8@gmail.com -->
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;700&display=swap">
@@ -92,7 +94,21 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
   display: grid; grid-template-columns: repeat(2, 9.25cm); grid-auto-rows: 6.4cm; gap: .35cm 0; align-content: start;
   justify-content: space-between;
 }
-.sheet-foot { grid-column: 1 / -1; font: 500 7.5pt var(--f-body); color: #666; display: flex; justify-content: space-between; align-self: end; }
+.sheet-foot { grid-column: 1 / -1; font: 500 7.5pt var(--f-body); color: #666; display: flex; justify-content: space-between; gap: 12px; align-self: end; }
+.credits { text-align: center; color: var(--muted); font-size: .8rem; line-height: 1.5; padding-top: 8px; border-top: 1px solid var(--line); }
+.credits p { margin: 0; }
+.credits strong { color: var(--fg); }
+.credits .sel { user-select: all; white-space: nowrap; }
+.issued { border-radius: 8px; padding: 12px; display: grid; gap: 8px; font-size: .88rem; }
+.issued.bad { background: var(--bad-bg); color: var(--bad); }
+.issued.ok { background: var(--ok-bg); color: var(--ok); }
+.issued p { margin: 0; color: var(--fg); }
+.issued .btn { justify-self: start; padding: 8px 12px; font-size: .85rem; }
+.hist { font-size: .85rem; color: var(--muted); }
+.hist summary { cursor: pointer; font-weight: 600; color: var(--fg); }
+.hist ul { margin: 6px 0 0; padding-left: 1.1em; display: grid; gap: 2px; font-variant-numeric: tabular-nums; }
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--fg); color: var(--panel); padding: 10px 16px; border-radius: 99px; font-weight: 600; z-index: 50; max-width: calc(100% - 32px); }
+
 .pair { display: flex; align-items: flex-start; }
 .token {
   width: 6cm; height: 6cm; position: relative; border: 1px dashed #999; flex: none;
@@ -157,13 +173,15 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
   @page { size: A4; margin: 0; }
   body { background: #fff; padding: 0; }
   .wrap { display: block; max-width: none; }
-  header.top, .tabs, .panel, .sheets-head, [data-view]:not([data-view="planche"]) { display: none !important; }
+  header.top, .tabs, .panel, .sheets-head, .credits, .toast, [data-view]:not([data-view="planche"]) { display: none !important; }
   [data-view="planche"] { display: block !important; }
   .layout { display: block; }
   .sheets { display: block; overflow: visible; padding: 0; }
   .sheet { box-shadow: none; margin: 0; page-break-after: always; break-after: page; height: 29.7cm; min-height: 0; overflow: hidden; }
   .sheet:last-child { page-break-after: auto; break-after: auto; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html.blocked .sheet { display: none !important; }
+  html.blocked [data-view="planche"]::before { content: "Impression refusée : ces numéros de jetons ont déjà été émis."; font: 700 16pt sans-serif; display: block; padding: 2cm; }
 }
 @media (prefers-reduced-motion: no-preference) { .tabs button { transition: color .15s, border-color .15s; } }
 </style>
@@ -234,6 +252,8 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
           <div class="swatches" id="swatches" role="group" aria-labelledby="lbl-ink"></div>
           <span class="hint">Changez de couleur et de série à chaque nouveau lot : un ancien jeton se repère tout de suite.</span>
         </div>
+        <div id="issued-msg" aria-live="polite"></div>
+        <details class="hist" id="hist"><summary>Numéros déjà émis</summary><ul id="hist-list"></ul></details>
         <div class="note"><strong>8 jetons par feuille A4.</strong> Téléchargez le PDF, puis imprimez-le en couleur à 100 % (taille réelle, sans « ajuster à la page »). Découpez le long des pointillés.</div>
       </form>
 
@@ -288,6 +308,10 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
       <div class="note"><strong>Pourquoi un faux ne passe pas :</strong> un jeton <b>inventé</b> n'a pas le bon code (il dépend du mot secret). Une <b>copie</b> d'un jeton déjà utilisé est marquée « rendu » dans le Registre. Une <b>copie parfaite</b> présentée avant le vrai client échoue au code de retrait, qui n'est pas imprimé. Le cachet sec en relief rend en plus toute photocopie visible au toucher.</div>
     </div>
   </section>
+  <footer class="credits">
+    <p><strong>© 2026 Giresse Mulaja.</strong> Tous droits réservés.</p>
+    <p>Développeur : Giresse Mulaja · Tél. <span class="sel">+243 810 000 421</span> · <span class="sel">giressemulaja8@gmail.com</span></p>
+  </footer>
 </div>
 
 <script>
@@ -3121,6 +3145,7 @@ window.CabineAuth = (() => {
       .gate .pw button { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: 0; color: var(--accent); font-family: inherit; font-weight: 600; font-size: .8rem; cursor: pointer; padding: 6px; }
       .gate .go { font-family: inherit; font-weight: 700; font-size: 1rem; border-radius: 10px; padding: 13px; border: 0; background: var(--accent); color: var(--accent-fg); cursor: pointer; }
       .gate .go:disabled { opacity: .55; cursor: progress; }
+      .gate .cr { text-align: center; font-size: .75rem; line-height: 1.5; }
       .gate .err { color: var(--bad, #b3261e); font-weight: 600; font-size: .9rem; min-height: 1.2em; }
       .gate input:focus-visible, .gate button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }`;
     document.head.appendChild(st);
@@ -3139,6 +3164,7 @@ window.CabineAuth = (() => {
       <label for="g-pass">Mot de passe<span class="pw"><input id="g-pass" type="password" autocomplete="current-password" required><button type="button" id="g-eye">Afficher</button></span></label>
       <div class="err" id="g-err" role="alert"></div>
       <button class="go" type="submit" id="g-go">Se connecter</button>
+      <p class="cr">© 2026 Giresse Mulaja · Tél. +243 810 000 421<br>giressemulaja8@gmail.com</p>
     </form>`;
     document.body.appendChild(g);
     const user = g.querySelector("#g-user"), pass = g.querySelector("#g-pass"), err = g.querySelector("#g-err"), go = g.querySelector("#g-go");
@@ -3312,11 +3338,12 @@ window.CabineAuth = (() => {
     for (let p = 0; p < nums.length; p += per) {
       const chunk = nums.slice(p, p + per);
       html += `<div class="sheet">${chunk.map((n) => pairHTML(c, n, `${c.serie}${n}`)).join("")}
-        <div class="sheet-foot"><span>${esc(c.name)} · Série ${c.serie} · n° ${pad(chunk[0])} à ${pad(chunk[chunk.length - 1])}</span><span>Feuille ${p / per + 1} / ${Math.ceil(nums.length / per)}</span></div></div>`;
+        <div class="sheet-foot"><span>${esc(c.name)} · Série ${c.serie} · n° ${pad(chunk[0])} à ${pad(chunk[chunk.length - 1])}</span><span>© 2026 Giresse Mulaja · Tous droits réservés</span><span>Feuille ${p / per + 1} / ${Math.ceil(nums.length / per)}</span></div></div>`;
     }
     $("sheets").innerHTML = html;
     $("summary").textContent = `${nums.length} jeton${nums.length > 1 ? "s" : ""} · ${Math.ceil(nums.length / per)} feuille${nums.length > per ? "s" : ""} A4 · série ${c.serie}, n° ${pad(nums[0])} à ${pad(nums[nums.length - 1])}`;
     verify();
+    checkIssued();
   }
 
   function verify() {
@@ -3341,11 +3368,53 @@ window.CabineAuth = (() => {
     document.querySelectorAll("[data-view]").forEach((s) => { s.hidden = s.dataset.view !== b.dataset.tab; });
   }));
 
+  // ---------- Numéros émis : un numéro ne sert qu'une seule fois ----------
+  const ISSUED_KEY = "cabine-emissions-v1";
+  let issued = {};
+  try { issued = JSON.parse(localStorage.getItem(ISSUED_KEY) || "{}") || {}; } catch (e) {}
+  const saveIssued = () => { try { localStorage.setItem(ISSUED_KEY, JSON.stringify(issued)); } catch (e) {} };
+  const fmtDate = (t) => new Date(t).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  const nextFree = (serie) => (issued[serie] || []).reduce((m, r) => Math.max(m, r.to + 1), 1);
+  function overlaps(serie, from, to) { return (issued[serie] || []).filter((r) => r.from <= to && r.to >= from); }
+  function markIssued(serie, from, to, how) {
+    (issued[serie] = issued[serie] || []).push({ from, to, at: Date.now(), how });
+    saveIssued();
+    const nf = nextFree(serie);
+    if (nf <= 9999) { $("f-start").value = nf; }
+    render();
+    toast(`Série ${serie} n° ${pad(from)} à ${pad(to)} émise. Prochain numéro libre : ${pad(nf)}.`);
+  }
+  // Renvoie true si l'émission est autorisée ; sinon affiche l'alerte et bloque PDF et impression
+  function checkIssued() {
+    const c = cfg(), from = c.start, to = Math.min(9999, c.start + c.count - 1);
+    const hit = overlaps(c.serie, from, to), nf = nextFree(c.serie), box = $("issued-msg");
+    const blocked = hit.length > 0 || nf > 9999;
+    document.documentElement.classList.toggle("blocked", blocked);
+    $("btn-pdf").disabled = blocked; $("btn-print").disabled = blocked;
+    if (blocked) {
+      const r = hit[0];
+      box.innerHTML = `<div class="issued bad"><strong>Numéros déjà émis</strong>
+        <p>${r ? `Les n° ${pad(r.from)} à ${pad(r.to)} de la série ${c.serie} ont été émis le ${fmtDate(r.at)} (${esc(r.how)}).` : `La série ${c.serie} est complète.`} Un numéro ne peut servir qu'une fois : le PDF et l'impression sont bloqués.</p>
+        ${nf <= 9999 ? `<button class="btn" type="button" id="btn-next">Commencer au n° ${pad(nf)}</button>` : `<p>Choisissez une autre série.</p>`}</div>`;
+      const bn = $("btn-next"); if (bn) bn.onclick = () => { $("f-start").value = nf; render(); };
+    } else {
+      box.innerHTML = `<div class="issued ok"><strong>Numéros neufs</strong><p>Les n° ${pad(from)} à ${pad(to)} de la série ${c.serie} n'ont jamais été émis.</p></div>`;
+    }
+    const all = Object.entries(issued).flatMap(([s, rs]) => rs.map((r) => ({ s, ...r }))).sort((a, b) => b.at - a.at);
+    $("hist-list").innerHTML = all.length ? all.map((r) => `<li>Série ${r.s} · n° ${pad(r.from)} à ${pad(r.to)} · ${fmtDate(r.at)} (${esc(r.how)})</li>`).join("") : "<li>Aucun pour l'instant.</li>";
+    return !blocked;
+  }
+  let toastTimer;
+  function toast(msg) {
+    let t = document.querySelector(".toast"); if (!t) { t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+    t.textContent = msg; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.remove(), 4500);
+  }
+
   $("cfg").addEventListener("input", render);
   $("cfg").addEventListener("submit", (e) => e.preventDefault());
   $("vf").addEventListener("input", verify);
   $("vf").addEventListener("submit", (e) => e.preventDefault());
-  selSerie.addEventListener("change", () => { vSerie.value = selSerie.value; });
+  selSerie.addEventListener("change", () => { vSerie.value = selSerie.value; $("f-start").value = nextFree(selSerie.value); render(); });
 
   // Bouton Imprimer : seulement quand le fichier est ouvert directement dans un navigateur
   let standalone = false; try { standalone = window.self === window.top; } catch (e) {}
@@ -3369,17 +3438,23 @@ window.CabineAuth = (() => {
       }
       const first = parseInt(c.start, 10), last = Math.min(9999, first + c.count - 1);
       const slug = c.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+      if (!checkIssued()) return;
       pdf.save(`jetons-${slug}-serie-${c.serie}-${pad(first)}-${pad(last)}.pdf`);
+      markIssued(c.serie, first, last, "PDF");
     } catch (e) {
       alert("Le PDF n'a pas pu être créé. Utilisez le bouton Imprimer puis « Enregistrer au format PDF ».");
     } finally { btn.disabled = false; btn.textContent = label; }
   });
 
   $("btn-print").addEventListener("click", () => {
+    if (!checkIssued()) return;
+    const c = cfg(), first = c.start, last = Math.min(9999, c.start + c.count - 1);
     document.querySelector('[data-tab="planche"]').click(); window.print();
+    markIssued(c.serie, first, last, "impression");
   });
 
   $("btn-logout").addEventListener("click", () => window.CabineAuth.logout());
+  $("f-start").value = nextFree(selSerie.value);
   render();
   // Exemple pré-rempli dans l'onglet Vérifier
   $("v-code").value = tokenData(cfg().secret, "A", 7).code; verify();

@@ -1,4 +1,6 @@
 <title>Registre Cabine de Charge</title>
+<meta name="author" content="Giresse Mulaja">
+<!-- © 2026 Giresse Mulaja. Tous droits réservés. Développeur : Giresse Mulaja, tél. +243 810 000 421, giressemulaja8@gmail.com -->
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* Application téléphone : une colonne, barre d'onglets en bas, gros boutons utilisables d'une main. */
@@ -84,6 +86,10 @@ nav.tabs button[aria-current="page"] { color: var(--accent); background: var(--b
 .photo-pick svg { width: 34px; height: 34px; }
 .phone-photo { width: 100%; max-height: 340px; object-fit: contain; border-radius: 10px; background: #000; display: block; }
 .photo-cap { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
+.credits { text-align: center; color: var(--muted); font-size: .8rem; line-height: 1.5; padding-top: 8px; border-top: 1px solid var(--line); }
+.credits p { margin: 0; }
+.credits strong { color: var(--fg); }
+.credits .sel { user-select: all; white-space: nowrap; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(92px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--panel); padding: 10px 16px; border-radius: 99px; font-weight: 600; z-index: 30; max-width: calc(100% - 32px); }
 </style>
 
@@ -152,6 +158,10 @@ nav.tabs button[aria-current="page"] { color: var(--accent); background: var(--b
       <button class="btn danger" type="button" id="btn-logout">Se déconnecter</button>
     </div>
   </section>
+  <footer class="credits">
+    <p><strong>© 2026 Giresse Mulaja.</strong> Tous droits réservés.</p>
+    <p>Développeur : Giresse Mulaja · Tél. <span class="sel">+243 810 000 421</span> · <span class="sel">giressemulaja8@gmail.com</span></p>
+  </footer>
 </main>
 
 <nav class="tabs" id="tabs" hidden>
@@ -309,7 +319,7 @@ nav.tabs button[aria-current="page"] { color: var(--accent); background: var(--b
     const head = `<div class="tokenline">${motifSVG(t.bits, "#111")}<span class="num">${id}</span></div>`;
     if (mode === "depot") {
       if (rec && !rec.returnedAt) return result("warn", "Déjà en dépôt", `Ce jeton est déjà utilisé pour un téléphone déposé ${fmt(rec.depositAt)}. Prenez un autre jeton.`, head);
-      if (rec && rec.returnedAt) return result("bad", "Jeton déjà utilisé", `Ce jeton a servi le ${fmt(rec.returnedAt)}. Un jeton ne sert qu'une fois : prenez-en un neuf.`, head);
+      if (rec && rec.returnedAt) return result("bad", "Numéro déjà utilisé", `Le jeton ${id} a déjà servi (dépôt ${fmt(rec.depositAt)}, rendu ${fmt(rec.returnedAt)}). Un numéro ne sert qu'une seule fois : déchirez ce jeton et prenez-en un neuf.`, head);
       depositForm(serie, num, code, head);
     } else {
       if (!rec) return result("bad", "Jamais enregistré", "Ce jeton est authentique mais aucun téléphone n'a été déposé avec lui. Ne rendez rien : il a pu être volé dans la réserve de jetons.", head);
