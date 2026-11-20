@@ -108,7 +108,9 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
 .t-fill { font: 500 5.4pt/1.5 var(--f-body); color: #222; margin-top: auto; width: 100%; text-align: left; background: rgba(255,255,255,.85); padding: 2px 3px; }
 .t-fill span { display: inline-block; border-bottom: .5px solid #555; min-width: .9cm; }
 .t-rule { font: 600 5pt/1.25 var(--f-body); color: #fff; background: var(--ink); width: calc(100% + .56cm); margin: 3px -.28cm -.28cm; padding: 2px 4px; }
-.cachet { position: absolute; right: .4cm; bottom: 1.15cm; width: 1.35cm; height: 1.35cm; border: .6px dashed #888; border-radius: 50%; font: 500 4.4pt var(--f-body); color: #888; display: grid; place-items: center; background: rgba(255,255,255,.6); }
+.t-qr { position: absolute; left: .35cm; bottom: 1.05cm; width: 1.75cm; height: 1.75cm; background: #fff; padding: 1.5px; }
+.t-qr svg { display: block; width: 100%; height: 100%; }
+.cachet { position: absolute; right: .4cm; bottom: 1.15cm; width: 1.35cm; height: 1.35cm; border: .6px dashed #888; border-radius: 50%; font: 500 4.4pt var(--f-body); color: #888; display: grid; place-items: center; text-align: center; line-height: 1.2; background: rgba(255,255,255,.6); }
 
 .s-in { position: absolute; inset: .22cm; display: flex; flex-direction: column; align-items: center; text-align: center; gap: .1cm; }
 .s-head { font: 700 5pt var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: #fff; background: var(--ink); width: calc(100% + .44cm); margin: -.22cm -.22cm 0; padding: 2px 0; }
@@ -249,90 +251,49 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
       <h2>Comment ça marche</h2>
       <div class="cols">
         <div><b>Le jeton (6 × 6 cm)</b> est remis au propriétaire du téléphone.
-          <ul><li>Numéro et série</li><li>Code secret de 5 caractères</li><li>Motif unique</li><li>Micro-texte sur le contour</li><li>Place pour le cachet</li></ul></div>
+          <ul><li>Numéro et série</li><li>Code secret de 5 caractères</li><li>Motif unique</li><li>QR code à scanner avec l'application Registre</li><li>Micro-texte sur le contour</li><li>Place pour le cachet sec ou la signature</li></ul></div>
         <div><b>Le talon (3 × 6 cm)</b> reste collé au dos du téléphone, avec du scotch ou un élastique.
           <ul><li>Même numéro, même code, même motif</li><li>Modèle du téléphone</li><li>Nom du client, heure de dépôt</li></ul></div>
       </div>
       <h3>Au dépôt</h3>
       <ol>
-        <li>Prenez le prochain jeton de la planche. Notez la date et l'heure sur le jeton et sur le talon.</li>
+        <li>Prenez le prochain jeton. Dans l'application <b>Registre</b>, scannez son QR code (ou tapez le numéro et le code), puis enregistrez le modèle du téléphone et le <b>code de retrait</b> choisi par le client (4 chiffres, par exemple la fin de son numéro). Ce code n'est écrit nulle part sur le jeton.</li>
+        <li>Notez la date et l'heure sur le jeton et sur le talon.</li>
         <li>Sur le talon, écrivez le modèle et la couleur du téléphone (ex. « Tecno Spark 10, bleu »), et le prénom du client.</li>
-        <li>Apposez votre <b>cachet ou signature</b> dans le rond du jeton. Une photocopie couleur ne reproduit pas un tampon frais.</li>
+        <li>Pressez votre <b>cachet sec</b> (pince à gaufrer) ou signez au stylo dans le rond du jeton. Une photocopie ne reproduit pas le relief.</li>
         <li>Collez le talon sur le téléphone. Donnez le jeton au client.</li>
       </ol>
       <h3>Au retrait</h3>
       <ol>
-        <li>Le client présente son jeton. Vérifiez la <b>couleur et la série</b> du lot en cours.</li>
-        <li>Retrouvez le téléphone dont le talon porte <b>le même numéro</b>. Comparez <b>le code</b> et <b>le motif</b> : ils doivent être identiques.</li>
-        <li>Vérifiez votre cachet ou signature sur le jeton. En cas de doute, contrôlez le code dans l'onglet « Vérifier un jeton ».</li>
-        <li>Rendez le téléphone. <b>Gardez le jeton et le talon</b> (ou déchirez-les) pour qu'ils ne servent jamais deux fois.</li>
+        <li>Le client présente son jeton. Touchez le <b>relief du cachet sec</b> et vérifiez la couleur et la série du lot.</li>
+        <li>Scannez le QR dans le <b>Registre</b>. L'application dit si le jeton est inconnu, déjà rendu ou en dépôt.</li>
+        <li>Demandez au client son <b>code de retrait</b> et tapez-le. Sans le bon code : demandez-lui de déverrouiller le téléphone devant vous.</li>
+        <li>Vérifiez que le talon du téléphone porte le même numéro, code et motif. Rendez le téléphone : le Registre marque le jeton « rendu ». <b>Gardez le jeton</b>.</li>
       </ol>
       <div class="note"><strong>Jeton perdu ?</strong> Ne rendez le téléphone qu'après une pièce d'identité et la preuve que le client peut le déverrouiller (code ou empreinte). Notez son nom sur le talon.</div>
-      <div class="note"><strong>Pourquoi c'est difficile à falsifier :</strong> le code et le motif sont calculés à partir du mot secret, donc un faussaire ne peut pas deviner ceux d'un numéro qu'il n'a pas vu. Le cachet frais, la couleur du lot et le micro-texte rendent la photocopie visible. Et le talon sur le téléphone sert de preuve de référence.</div>
+      <div class="note"><strong>Pourquoi un faux ne passe pas :</strong> un jeton <b>inventé</b> n'a pas le bon code (il dépend du mot secret). Une <b>copie</b> d'un jeton déjà utilisé est marquée « rendu » dans le Registre. Une <b>copie parfaite</b> présentée avant le vrai client échoue au code de retrait, qui n'est pas imprimé. Le cachet sec en relief rend en plus toute photocopie visible au toucher.</div>
     </div>
   </section>
 </div>
 
+<!--QRLIB-->
+<!--CORE-->
 <script>
 (() => {
-  // ---------- SHA-256 synchrone (fonctionne aussi hors ligne, en fichier local) ----------
-  const K = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
-  function sha256(str) {
-    const bytes = new TextEncoder().encode(str);
-    const len = bytes.length, bitLen = len * 8;
-    const total = ((len + 9 + 63) >> 6) << 6;
-    const m = new Uint8Array(total); m.set(bytes); m[len] = 0x80;
-    const dv = new DataView(m.buffer);
-    dv.setUint32(total - 4, bitLen >>> 0); dv.setUint32(total - 8, Math.floor(bitLen / 2**32));
-    const H = new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
-    const W = new Uint32Array(64);
-    const r = (x, n) => (x >>> n) | (x << (32 - n));
-    for (let o = 0; o < total; o += 64) {
-      for (let i = 0; i < 16; i++) W[i] = dv.getUint32(o + i * 4);
-      for (let i = 16; i < 64; i++) {
-        const s0 = r(W[i-15],7) ^ r(W[i-15],18) ^ (W[i-15] >>> 3);
-        const s1 = r(W[i-2],17) ^ r(W[i-2],19) ^ (W[i-2] >>> 10);
-        W[i] = (W[i-16] + s0 + W[i-7] + s1) >>> 0;
-      }
-      let [a,b,c,d,e,f,g,h] = H;
-      for (let i = 0; i < 64; i++) {
-        const t1 = (h + (r(e,6) ^ r(e,11) ^ r(e,25)) + ((e & f) ^ (~e & g)) + K[i] + W[i]) >>> 0;
-        const t2 = ((r(a,2) ^ r(a,13) ^ r(a,22)) + ((a & b) ^ (a & c) ^ (b & c))) >>> 0;
-        h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
-      }
-      H[0]+=a; H[1]+=b; H[2]+=c; H[3]+=d; H[4]+=e; H[5]+=f; H[6]+=g; H[7]+=h;
-    }
-    const out = new Uint8Array(32); const odv = new DataView(out.buffer);
-    H.forEach((v, i) => odv.setUint32(i * 4, v)); return out;
-  }
-
-  const ALPHA = "ACDEFHJKMNPRTUVWXY34679"; // sans 0/O, 1/I/L, 5/S, 8/B, 2/Z
-  const SERIES = "ABCDEFGHJKLMNPRSTUVWXYZ".split("");
+  const { SERIES, pad, esc, tokenData, motifSVG } = window.CabineCore;
   const INKS = [
     { name: "Vert", v: "#0f6b5c" }, { name: "Bleu", v: "#1d4e9e" }, { name: "Bordeaux", v: "#8c1d3a" },
     { name: "Violet", v: "#5b2d8e" }, { name: "Orange", v: "#b8520a" }, { name: "Noir", v: "#1b1b1b" }
   ];
   const $ = (id) => document.getElementById(id);
-  const pad = (n) => String(n).padStart(4, "0");
-  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-  function tokenData(secret, serie, num) {
-    const h = sha256(`${secret}|${serie}|${num}`);
-    let code = ""; for (let i = 0; i < 5; i++) code += ALPHA[h[i] % ALPHA.length];
-    const bits = []; for (let i = 0; i < 15; i++) bits.push((h[8 + (i >> 3)] >> (i & 7)) & 1);
-    return { code, bits, seed: h[20] / 255, seed2: h[21] / 255 };
-  }
 
-  // Motif 5×5 symétrique (comme une empreinte visuelle)
-  function motifSVG(bits, ink) {
-    let rects = "";
-    for (let y = 0; y < 5; y++) for (let x = 0; x < 3; x++) {
-      if (bits[y * 3 + x]) {
-        rects += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
-        if (x < 2) rects += `<rect x="${4 - x}" y="${y}" width="1" height="1"/>`;
-      }
-    }
-    return `<svg class="motif" viewBox="0 0 5 5" shape-rendering="crispEdges" aria-label="Motif de contrôle"><g fill="${ink}">${rects}</g></svg>`;
+  // QR code (bibliothèque qrcode-generator intégrée au fichier)
+  function qrSVG(text) {
+    const q = qrcode(0, "M"); q.addData(text, "Alphanumeric"); q.make();
+    const n = q.getModuleCount(); let d = "";
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (q.isDark(y, x)) d += `M${x} ${y}h1v1h-1z`;
+    return `<svg viewBox="-1 -1 ${n + 2} ${n + 2}" shape-rendering="crispEdges" aria-label="QR code du jeton"><path d="${d}" fill="#000"/></svg>`;
   }
 
   // Fond guilloché (rosace) + micro-texte sur le contour, calculés par numéro
@@ -403,7 +364,8 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
           <div class="t-fill">Déposé le <span></span> à <span></span></div>
           <div class="t-rule">Jeton à rendre pour récupérer le téléphone · valable ${esc(c.validity)}</div>
         </div>
-        <div class="cachet">cachet</div>
+        <div class="t-qr">${qrSVG(`CC1:${c.serie}:${pad(num)}:${t.code}`)}</div>
+        <div class="cachet">cachet sec<br>signature</div>
       </div>
       <div class="stub">
         ${guillocheSVG(117, 227, ink, t.seed2, t.seed, micro, "ms" + uid)}
