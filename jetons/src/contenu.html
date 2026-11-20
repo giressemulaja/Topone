@@ -1,6 +1,6 @@
 <title>Jetons Cabine de Charge</title>
 <meta name="author" content="Giresse Mulaja">
-<!-- © 2026 Giresse Mulaja. Tous droits réservés. Développeur : Giresse Mulaja, tél. +243 810 000 421, giressemulaja8@gmail.com -->
+<!-- © 2026 GM Corporate (Giresse Mulaja). Tous droits réservés. Développeur : Giresse Mulaja, tél. +243 810 000 421, giressemulaja8@gmail.com -->
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;700&display=swap">
@@ -12,7 +12,7 @@
   --fg: #17211f;
   --muted: #5b6b67;
   --line: #cfd8d5;
-  --accent: #0f6b5c;
+  --accent: #7a1414;
   --accent-fg: #ffffff;
   --ok: #157a3c;
   --ok-bg: #e3f4e8;
@@ -27,14 +27,14 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #111816; --panel: #1a2421; --fg: #e4ece9; --muted: #98aaa5; --line: #2e3d39;
-    --accent: #4fc2a9; --accent-fg: #0b1513; --ok: #6fd696; --ok-bg: #173323; --bad: #ff8a80; --bad-bg: #3a1b19;
+    --accent: #ff7b55; --accent-fg: #1d0703; --ok: #6fd696; --ok-bg: #173323; --bad: #ff8a80; --bad-bg: #3a1b19;
     --paper-shadow: 0 1px 2px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.4);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #111816; --panel: #1a2421; --fg: #e4ece9; --muted: #98aaa5; --line: #2e3d39;
-  --accent: #4fc2a9; --accent-fg: #0b1513; --ok: #6fd696; --ok-bg: #173323; --bad: #ff8a80; --bad-bg: #3a1b19;
+  --accent: #ff7b55; --accent-fg: #1d0703; --ok: #6fd696; --ok-bg: #173323; --bad: #ff8a80; --bad-bg: #3a1b19;
   --paper-shadow: 0 1px 2px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.4);
   color-scheme: dark;
 }
@@ -90,6 +90,9 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
   justify-content: space-between;
 }
 .sheet-foot { grid-column: 1 / -1; font: 500 7.5pt var(--f-body); color: #666; display: flex; justify-content: space-between; gap: 12px; align-self: end; }
+.brand { display: inline-flex; align-items: center; gap: 8px; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.brand img, .brandline img { background: #fff; border-radius: 6px; padding: 2px; }
+.brandline { display: inline-flex; align-items: center; gap: 6px; }
 .credits { text-align: center; color: var(--muted); font-size: .8rem; line-height: 1.5; padding-top: 8px; border-top: 1px solid var(--line); }
 .credits p { margin: 0; }
 .credits strong { color: var(--fg); }
@@ -184,6 +187,7 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
 <div class="wrap">
   <header class="top">
     <div>
+      <span class="brand"><img src="%%GM_LOGO%%" alt="Logo GM Corporate" width="28" height="28">GM Corporate</span>
       <h1>Jetons Cabine de Charge</h1>
       <p>Chaque jeton a un numéro, un code secret et un motif uniques, calculés à partir du mot secret de la cabine. Le talon de même numéro reste collé au téléphone.</p>
     </div>
@@ -304,7 +308,7 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
     </div>
   </section>
   <footer class="credits">
-    <p><strong>© 2026 Giresse Mulaja.</strong> Tous droits réservés.</p>
+    <p class="brandline"><img src="%%GM_LOGO%%" alt="" width="20" height="20"><strong>© 2026 GM Corporate.</strong> Tous droits réservés.</p>
     <p>Développeur : Giresse Mulaja · Tél. <span class="sel">+243 810 000 421</span> · <span class="sel">giressemulaja8@gmail.com</span></p>
   </footer>
 </div>
@@ -527,7 +531,7 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
       const first = parseInt(c.start, 10), last = Math.min(9999, first + c.count - 1);
       const slug = c.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
       if (!checkIssued()) return;
-      pdf.save(`jetons-${slug}-serie-${c.serie}-${pad(first)}-${pad(last)}.pdf`);
+      await window.CabineCore.saveFile(`jetons-${slug}-serie-${c.serie}-${pad(first)}-${pad(last)}.pdf`, "application/pdf", pdf.output("blob"));
       markIssued(c.serie, first, last, "PDF");
     } catch (e) {
       alert("Le PDF n'a pas pu être créé. Utilisez le bouton Imprimer puis « Enregistrer au format PDF ».");
@@ -537,7 +541,7 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
   $("btn-print").addEventListener("click", () => {
     if (!checkIssued()) return;
     const c = cfg(), first = c.start, last = Math.min(9999, c.start + c.count - 1);
-    document.querySelector('[data-tab="planche"]').click(); window.print();
+    document.querySelector('[data-tab="planche"]').click(); window.CabineCore.print();
     markIssued(c.serie, first, last, "impression");
   });
 

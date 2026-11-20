@@ -55,5 +55,24 @@ window.CabineCore = (() => {
     }
     return `<svg class="motif" viewBox="-0.7 -0.7 6.4 6.4" shape-rendering="crispEdges" aria-label="Motif de contrôle"><rect x="-0.65" y="-0.65" width="6.3" height="6.3" fill="#fff" stroke="${ink}" stroke-width=".1"/><g fill="${ink}">${rects}</g></svg>`;
   }
-  return { sha256, ALPHA, SERIES, pad, esc, tokenData, motifSVG };
+  // Enregistrer un fichier : dans l'application Android, passe par le pont natif (par morceaux) ; sinon, téléchargement du navigateur.
+  async function saveFile(name, mime, blob) {
+    const A = window.GMAndroid;
+    if (A && A.beginFile) {
+      const buf = new Uint8Array(await blob.arrayBuffer());
+      const id = A.beginFile(name, mime);
+      const CH = 384 * 1024;
+      for (let i = 0; i < buf.length; i += CH) {
+        let bin = ""; const part = buf.subarray(i, i + CH);
+        for (let j = 0; j < part.length; j += 8192) bin += String.fromCharCode.apply(null, part.subarray(j, j + 8192));
+        A.appendChunk(id, btoa(bin));
+      }
+      A.endFile(id);
+      return;
+    }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+  function print() { if (window.GMAndroid && window.GMAndroid.print) window.GMAndroid.print(); else window.print(); }
+  return { sha256, ALPHA, SERIES, pad, esc, tokenData, motifSVG, saveFile, print };
 })();

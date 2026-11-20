@@ -33,8 +33,8 @@ window.CabineAuth = (() => {
       .gate { position: fixed; inset: 0; z-index: 1000; background: var(--bg); color: var(--fg); display: grid; place-items: center;
         padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); overflow-y: auto; }
       .gate form { width: 100%; max-width: 360px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px; display: grid; gap: 14px; }
-      .gate .lock { width: 44px; height: 44px; border-radius: 12px; background: var(--accent); color: var(--accent-fg); display: grid; place-items: center; }
-      .gate .lock svg { width: 24px; height: 24px; }
+      .gate .lock { display: flex; align-items: center; gap: 10px; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+      .gate .lock img { width: 52px; height: 52px; background: #fff; border-radius: 12px; padding: 4px; }
       .gate h2 { margin: 0; font-size: 1.25rem; }
       .gate p { margin: 0; color: var(--muted); font-size: .9rem; }
       .gate label { display: grid; gap: 4px; font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
@@ -56,13 +56,13 @@ window.CabineAuth = (() => {
     document.querySelector(".gate")?.remove();
     const g = document.createElement("div"); g.className = "gate";
     g.innerHTML = `<form autocomplete="off" novalidate>
-      <div class="lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+      <div class="lock"><img src="%%GM_LOGO%%" alt="Logo GM Corporate">GM Corporate</div>
       <div><h2>${appName}</h2><p>${reason || "Connectez-vous pour continuer."}</p></div>
       <label for="g-user">Identifiant<input id="g-user" inputmode="numeric" autocomplete="username" autocapitalize="off" spellcheck="false" required></label>
       <label for="g-pass">Mot de passe<span class="pw"><input id="g-pass" type="password" autocomplete="current-password" required><button type="button" id="g-eye">Afficher</button></span></label>
       <div class="err" id="g-err" role="alert"></div>
       <button class="go" type="submit" id="g-go">Se connecter</button>
-      <p class="cr">© 2026 Giresse Mulaja · Tél. +243 810 000 421<br>giressemulaja8@gmail.com</p>
+      <p class="cr">© 2026 GM Corporate · Giresse Mulaja<br>Tél. +243 810 000 421<br>giressemulaja8@gmail.com</p>
     </form>`;
     document.body.appendChild(g);
     const user = g.querySelector("#g-user"), pass = g.querySelector("#g-pass"), err = g.querySelector("#g-err"), go = g.querySelector("#g-go");

@@ -1,24 +1,24 @@
 <title>Registre Cabine de Charge</title>
 <meta name="author" content="Giresse Mulaja">
-<!-- © 2026 Giresse Mulaja. Tous droits réservés. Développeur : Giresse Mulaja, tél. +243 810 000 421, giressemulaja8@gmail.com -->
+<!-- © 2026 GM Corporate (Giresse Mulaja). Tous droits réservés. Développeur : Giresse Mulaja, tél. +243 810 000 421, giressemulaja8@gmail.com -->
 <meta name="claude:viewport-fit-sides" content="cover">
 <style>
 /* Application téléphone : une colonne, barre d'onglets en bas, gros boutons utilisables d'une main. */
 :root {
   --bg: #eef1f0; --panel: #ffffff; --fg: #17211f; --muted: #5b6b67; --line: #cfd8d5;
-  --accent: #0f6b5c; --accent-fg: #ffffff;
+  --accent: #7a1414; --accent-fg: #ffffff;
   --ok: #146c36; --ok-bg: #dff3e6; --warn: #8a5300; --warn-bg: #fdf0d8; --bad: #a3221b; --bad-bg: #fbe4e2;
   --f-body: "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
   --f-mono: ui-monospace, "Roboto Mono", "Courier New", monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #111816; --panel: #1a2421; --fg: #e4ece9; --muted: #98aaa5; --line: #2e3d39; --accent: #4fc2a9; --accent-fg: #0b1513;
+    --bg: #111816; --panel: #1a2421; --fg: #e4ece9; --muted: #98aaa5; --line: #2e3d39; --accent: #ff7b55; --accent-fg: #1d0703;
     --ok: #7ddc9f; --ok-bg: #163322; --warn: #f3c068; --warn-bg: #3a2c12; --bad: #ff8f86; --bad-bg: #3d1a18; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #111816; --panel: #1a2421; --fg: #e4ece9; --muted: #98aaa5; --line: #2e3d39; --accent: #4fc2a9; --accent-fg: #0b1513;
+  --bg: #111816; --panel: #1a2421; --fg: #e4ece9; --muted: #98aaa5; --line: #2e3d39; --accent: #ff7b55; --accent-fg: #1d0703;
   --ok: #7ddc9f; --ok-bg: #163322; --warn: #f3c068; --warn-bg: #3a2c12; --bad: #ff8f86; --bad-bg: #3d1a18; color-scheme: dark;
 }
 * { box-sizing: border-box; }
@@ -86,6 +86,12 @@ nav.tabs button[aria-current="page"] { color: var(--accent); background: var(--b
 .photo-pick svg { width: 34px; height: 34px; }
 .phone-photo { width: 100%; max-height: 340px; object-fit: contain; border-radius: 10px; background: #000; display: block; }
 .photo-cap { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
+.brand { display: inline-flex; align-items: center; gap: 8px; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.brand img, .brandline img { background: #fff; border-radius: 6px; padding: 2px; }
+.brandline { display: inline-flex; align-items: center; gap: 6px; }
+.top .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.top .who img { background: #fff; border-radius: 8px; padding: 3px; flex: none; }
+.top .who span { display: block; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .credits { text-align: center; color: var(--muted); font-size: .8rem; line-height: 1.5; padding-top: 8px; border-top: 1px solid var(--line); }
 .credits p { margin: 0; }
 .credits strong { color: var(--fg); }
@@ -94,7 +100,7 @@ nav.tabs button[aria-current="page"] { color: var(--accent); background: var(--b
 </style>
 
 <main>
-  <div class="top"><h1 id="title">Registre</h1><small id="count"></small></div>
+  <div class="top"><div class="who"><img src="%%GM_LOGO%%" alt="Logo GM Corporate" width="36" height="36"><div><span>GM Corporate</span><h1 id="title">Registre</h1></div></div><small id="count"></small></div>
 
   <!-- ===== Première ouverture ===== -->
   <section data-view="setup" hidden>
@@ -159,7 +165,7 @@ nav.tabs button[aria-current="page"] { color: var(--accent); background: var(--b
     </div>
   </section>
   <footer class="credits">
-    <p><strong>© 2026 Giresse Mulaja.</strong> Tous droits réservés.</p>
+    <p class="brandline"><img src="%%GM_LOGO%%" alt="" width="20" height="20"><strong>© 2026 GM Corporate.</strong> Tous droits réservés.</p>
     <p>Développeur : Giresse Mulaja · Tél. <span class="sel">+243 810 000 421</span> · <span class="sel">giressemulaja8@gmail.com</span></p>
   </footer>
 </main>
@@ -441,9 +447,7 @@ nav.tabs button[aria-current="page"] { color: var(--accent); background: var(--b
     db.lastBackup = Date.now(); save();
     let photos = {}; try { photos = await photoAll(); } catch (e) {}
     const blob = new Blob([JSON.stringify(Object.assign({}, db, { photos }))], { type: "application/json" });
-    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
-    a.download = `registre-cabine-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.appendChild(a); a.click(); a.remove();
+    await window.CabineCore.saveFile(`registre-cabine-${new Date().toISOString().slice(0, 10)}.json`, "application/json", blob);
     renderSettings(); toast("Sauvegarde téléchargée.");
   };
   $("f-import").onchange = async (e) => {
