@@ -10474,7 +10474,8 @@ window.CabineAuth = (() => {
   const $ = (id) => document.getElementById(id);
   const KEY = "cabine-registre-v1";
   const hex = (b) => Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
-  const fmt = (t) => new Date(t).toLocaleString("fr-FR", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  // Horodatage complet : jour, date, heure à la seconde
+  const fmt = (t) => new Date(t).toLocaleString("fr-FR", { weekday: "short", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit" });
   const idOf = (serie, num) => `${serie}-${pad(num)}`;
 
   // ---------- Données ----------
@@ -10656,7 +10657,7 @@ window.CabineAuth = (() => {
       db.tokens[id] = { id, serie, num, code, model: $("d-model").value.trim(), client: $("d-client").value.trim(), pin: pinHash(serie, num, pin), photo: true, depositAt: Date.now(), returnedAt: 0, how: "", tries: 0 };
       if (save()) {
         header();
-        result("ok", `Dépôt ${id} enregistré`, "Notez l'heure sur le jeton et le talon, collez le talon sur le téléphone, puis donnez le jeton au client.",
+        result("ok", `Dépôt ${id} enregistré`, `Horodatage du dépôt : ${fmt(db.tokens[id].depositAt)}. Collez le talon sur le téléphone, puis donnez le jeton au client.`,
           `${head}<img class="phone-photo" src="${photo}" alt="Photo du téléphone ${id}">`);
       }
     });
@@ -10696,7 +10697,7 @@ window.CabineAuth = (() => {
     if (!save()) return;
     header();
     $("scan-result").innerHTML = `<div class="status ok"><b>Rendez le téléphone ${rec.id}</b>
-      <p>${esc(rec.model)}. Le jeton est maintenant marqué « rendu » : gardez-le, il ne pourra plus jamais servir.</p><div id="h-photo"></div></div>`;
+      <p>${esc(rec.model)}. Horodatage du retrait : ${fmt(rec.returnedAt)}. Le jeton est maintenant marqué « rendu » : gardez-le, il ne pourra plus jamais servir.</p><div id="h-photo"></div></div>`;
     photoGet(rec.id).then((d) => { if (d && $("h-photo")) $("h-photo").innerHTML = `<img class="phone-photo" src="${d}" alt="Photo du téléphone ${rec.id}">`; });
   }
 
