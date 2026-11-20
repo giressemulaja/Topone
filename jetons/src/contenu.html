@@ -1,0 +1,475 @@
+<title>Jetons Cabine de Charge</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;700&display=swap">
+<style>
+/* Mise en page : panneau de réglages à gauche, planches A4 imprimables à droite (empilés sur téléphone). */
+:root {
+  --bg: #eef1f0;
+  --panel: #ffffff;
+  --fg: #17211f;
+  --muted: #5b6b67;
+  --line: #cfd8d5;
+  --accent: #0f6b5c;
+  --accent-fg: #ffffff;
+  --ok: #157a3c;
+  --ok-bg: #e3f4e8;
+  --bad: #b3261e;
+  --bad-bg: #fbe7e5;
+  --paper: #ffffff;
+  --paper-shadow: 0 1px 2px rgba(20,40,35,.12), 0 8px 24px rgba(20,40,35,.10);
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111816; --panel: #1a2421; --fg: #e4ece9; --muted: #98aaa5; --line: #2e3d39;
+    --accent: #4fc2a9; --accent-fg: #0b1513; --ok: #6fd696; --ok-bg: #173323; --bad: #ff8a80; --bad-bg: #3a1b19;
+    --paper-shadow: 0 1px 2px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111816; --panel: #1a2421; --fg: #e4ece9; --muted: #98aaa5; --line: #2e3d39;
+  --accent: #4fc2a9; --accent-fg: #0b1513; --ok: #6fd696; --ok-bg: #173323; --bad: #ff8a80; --bad-bg: #3a1b19;
+  --paper-shadow: 0 1px 2px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+h1 { font-size: 1.7rem; font-weight: 800; letter-spacing: -.01em; }
+h2 { font-size: 1.15rem; font-weight: 600; }
+.wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: 20px; }
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+.tabs button {
+  font: 500 .95rem var(--f-body); background: none; border: 0; color: var(--muted);
+  padding: 10px 14px; border-bottom: 3px solid transparent; cursor: pointer; margin-bottom: -1px;
+}
+.tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+.tabs button:focus-visible, .btn:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 14px; }
+.field { display: grid; gap: 4px; }
+.field label { font-size: .78rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.field input, .field select {
+  font: 500 1rem var(--f-body); color: var(--fg); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 6px; padding: 8px 10px; width: 100%;
+}
+.field .hint { font-size: .8rem; color: var(--muted); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.swatches button { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--panel); box-shadow: 0 0 0 1px var(--line); cursor: pointer; }
+.swatches button[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--fg); }
+.btn {
+  font: 600 .95rem var(--f-body); border-radius: 6px; padding: 10px 14px; cursor: pointer;
+  border: 1px solid var(--accent); background: var(--accent); color: var(--accent-fg);
+}
+.btn.ghost { background: transparent; color: var(--accent); }
+.note { font-size: .85rem; color: var(--muted); background: var(--bg); border-radius: 6px; padding: 10px 12px; }
+.note strong { color: var(--fg); }
+.sheets { display: grid; gap: 24px; overflow-x: auto; padding-bottom: 8px; min-width: 0; }
+.sheets-head { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; align-items: center; color: var(--muted); font-size: .9rem; }
+
+/* ---------- Planche A4 (imprimée en cm réels) ---------- */
+.sheet {
+  width: 21cm; min-height: 29.7cm; background: var(--paper); box-shadow: var(--paper-shadow);
+  padding: 1.1cm 1.25cm; color: #111; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(2, 9.25cm); grid-auto-rows: 6.4cm; gap: .35cm 0; align-content: start;
+  justify-content: space-between;
+}
+.sheet-foot { grid-column: 1 / -1; font: 500 7.5pt var(--f-body); color: #666; display: flex; justify-content: space-between; align-self: end; }
+.pair { display: flex; align-items: flex-start; }
+.token {
+  width: 6cm; height: 6cm; position: relative; border: 1px dashed #999; flex: none;
+}
+.stub {
+  width: 3.1cm; height: 6cm; position: relative; border: 1px dashed #999; border-left: 0; flex: none;
+}
+.token svg.bgart, .stub svg.bgart { position: absolute; inset: 0; width: 100%; height: 100%; }
+.t-in { position: absolute; inset: .28cm; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.t-brand { font: 800 9pt/1.05 var(--f-display); text-transform: uppercase; letter-spacing: .02em; color: var(--ink); max-width: 100%; }
+.t-sub { font: 500 5.6pt/1.2 var(--f-body); color: #333; margin-top: 1px; }
+.t-num { font: 800 25pt/1 var(--f-display); color: var(--ink); margin-top: .12cm; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+.t-num small { font-size: 9pt; font-weight: 600; margin-right: 2px; }
+.t-mid { display: flex; align-items: center; gap: .3cm; margin-top: .15cm; }
+.t-code { font: 700 10.5pt var(--f-mono); letter-spacing: .12em; color: #111; background: #fff; padding: 1px 4px; border: 1px solid var(--ink); border-radius: 2px; }
+.t-codelbl { font: 600 4.6pt var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: #444; display: block; margin-bottom: 1px; }
+.motif { width: 1.3cm; height: 1.3cm; background: #fff; border: 1px solid var(--ink); padding: 1px; }
+.t-fill { font: 500 5.4pt/1.5 var(--f-body); color: #222; margin-top: auto; width: 100%; text-align: left; background: rgba(255,255,255,.85); padding: 2px 3px; }
+.t-fill span { display: inline-block; border-bottom: .5px solid #555; min-width: .9cm; }
+.t-rule { font: 600 5pt/1.25 var(--f-body); color: #fff; background: var(--ink); width: calc(100% + .56cm); margin: 3px -.28cm -.28cm; padding: 2px 4px; }
+.cachet { position: absolute; right: .4cm; bottom: 1.15cm; width: 1.35cm; height: 1.35cm; border: .6px dashed #888; border-radius: 50%; font: 500 4.4pt var(--f-body); color: #888; display: grid; place-items: center; background: rgba(255,255,255,.6); }
+
+.s-in { position: absolute; inset: .22cm; display: flex; flex-direction: column; align-items: center; text-align: center; gap: .1cm; }
+.s-head { font: 700 5pt var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: #fff; background: var(--ink); width: calc(100% + .44cm); margin: -.22cm -.22cm 0; padding: 2px 0; }
+.s-num { font: 800 16pt/1 var(--f-display); color: var(--ink); font-variant-numeric: tabular-nums; }
+.s-num small { font-size: 7pt; }
+.s-fill { font: 500 5pt/1.65 var(--f-body); color: #222; width: 100%; text-align: left; margin-top: auto; background: rgba(255,255,255,.85); }
+.s-fill span { display: block; border-bottom: .5px solid #555; height: 8.5pt; }
+.s-foot { font: 600 4.6pt/1.2 var(--f-body); color: #444; }
+.scissors { font-size: 7pt; color: #999; position: absolute; top: -6pt; left: -4pt; }
+
+/* ---------- Vérifier ---------- */
+.verify { max-width: 640px; }
+.result { border-radius: 8px; padding: 14px 16px; display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; }
+.result.ok { background: var(--ok-bg); color: var(--ok); }
+.result.bad { background: var(--bad-bg); color: var(--bad); }
+.result strong { font: 700 1.1rem var(--f-display); display: block; }
+.result p { margin: 2px 0 0; color: var(--fg); font-size: .9rem; }
+.result .motif { width: 64px; height: 64px; }
+
+/* ---------- Mode d'emploi ---------- */
+.guide { max-width: 760px; display: grid; gap: 18px; }
+.guide ol { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; }
+.guide li { padding-left: 4px; }
+.guide li b { font-family: var(--f-display); }
+.guide .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.guide .cols > div { background: var(--bg); border-radius: 8px; padding: 14px; }
+.guide ul { margin: 6px 0 0; padding-left: 1.2em; }
+
+.print-only { display: none; }
+[data-only-standalone] { display: none; }
+.standalone [data-only-standalone] { display: inline-block; }
+
+@media print {
+  @page { size: A4; margin: 0; }
+  body { background: #fff; padding: 0; }
+  .wrap { display: block; max-width: none; }
+  header.top, .tabs, .panel, .sheets-head, [data-view]:not([data-view="planche"]) { display: none !important; }
+  [data-view="planche"] { display: block !important; }
+  .layout { display: block; }
+  .sheets { display: block; overflow: visible; padding: 0; }
+  .sheet { box-shadow: none; margin: 0; page-break-after: always; break-after: page; height: 29.7cm; min-height: 0; overflow: hidden; }
+  .sheet:last-child { page-break-after: auto; break-after: auto; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+@media (prefers-reduced-motion: no-preference) { .tabs button { transition: color .15s, border-color .15s; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Jetons Cabine de Charge</h1>
+      <p>Chaque jeton a un numéro, un code secret et un motif uniques, calculés à partir du mot secret de la cabine. Le talon de même numéro reste collé au téléphone.</p>
+    </div>
+    <button class="btn" id="btn-print" type="button" data-only-standalone>Imprimer les planches</button>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="planche" id="tab-planche">Planches à imprimer</button>
+    <button role="tab" aria-selected="false" data-tab="verifier" id="tab-verifier">Vérifier un jeton</button>
+    <button role="tab" aria-selected="false" data-tab="guide" id="tab-guide">Mode d'emploi</button>
+  </nav>
+
+  <!-- ===== PLANCHES ===== -->
+  <section data-view="planche">
+    <div class="layout">
+      <form class="panel" id="cfg" autocomplete="off">
+        <h2>Réglages</h2>
+        <div class="field">
+          <label for="f-name">Nom de la cabine</label>
+          <input id="f-name" value="Recharge Express" maxlength="28">
+        </div>
+        <div class="field">
+          <label for="f-sub">Adresse ou téléphone</label>
+          <input id="f-sub" value="Marché central · 06 000 00 00" maxlength="40">
+        </div>
+        <div class="field">
+          <label for="f-secret">Mot secret de la cabine</label>
+          <input id="f-secret" value="exemple-a-changer" maxlength="40">
+          <span class="hint">Seul le responsable le connaît. Sans lui, impossible de fabriquer un faux code valide.</span>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="f-serie">Série</label>
+            <select id="f-serie"></select>
+          </div>
+          <div class="field">
+            <label for="f-validity">Validité</label>
+            <select id="f-validity">
+              <option value="24 h">24 heures</option>
+              <option value="48 h">48 heures</option>
+              <option value="7 jours" selected>7 jours</option>
+            </select>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="f-start">Premier n°</label>
+            <input id="f-start" type="number" min="1" max="9999" value="1">
+          </div>
+          <div class="field">
+            <label for="f-count">Nombre de jetons</label>
+            <input id="f-count" type="number" min="1" max="400" value="16">
+          </div>
+        </div>
+        <div class="field">
+          <label id="lbl-ink">Couleur d'encre</label>
+          <div class="swatches" id="swatches" role="group" aria-labelledby="lbl-ink"></div>
+          <span class="hint">Changez de couleur et de série à chaque nouveau lot : un ancien jeton se repère tout de suite.</span>
+        </div>
+        <div class="note"><strong>8 jetons par feuille A4.</strong> Imprimez en couleur, à 100 % (sans « ajuster à la page »), puis découpez le long des pointillés.</div>
+      </form>
+
+      <div class="sheets" id="sheets-wrap">
+        <div class="sheets-head"><span id="summary"></span><span>Aperçu à l'échelle réelle</span></div>
+        <div id="sheets" style="display:grid;gap:24px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== VÉRIFIER ===== -->
+  <section data-view="verifier" hidden>
+    <div class="panel verify">
+      <h2>Vérifier un jeton présenté par un client</h2>
+      <p style="margin:0;color:var(--muted)">Saisissez la série, le numéro et le code imprimés sur le jeton. Le mot secret utilisé est celui des réglages.</p>
+      <form id="vf" class="row2" style="grid-template-columns: 90px 1fr 1fr; align-items:end" autocomplete="off">
+        <div class="field"><label for="v-serie">Série</label><select id="v-serie"></select></div>
+        <div class="field"><label for="v-num">Numéro</label><input id="v-num" type="number" min="1" max="9999" value="7"></div>
+        <div class="field"><label for="v-code">Code</label><input id="v-code" maxlength="6" style="font-family:var(--f-mono);letter-spacing:.12em;text-transform:uppercase"></div>
+      </form>
+      <div id="v-result" aria-live="polite"></div>
+      <div class="note">Le code peut être juste et le jeton faux s'il a été photocopié. Vérifiez aussi que <strong>le talon collé sur le téléphone porte le même numéro, le même code et le même motif</strong>, et que votre cachet ou signature est bien sur le jeton.</div>
+    </div>
+  </section>
+
+  <!-- ===== MODE D'EMPLOI ===== -->
+  <section data-view="guide" hidden>
+    <div class="panel guide">
+      <h2>Comment ça marche</h2>
+      <div class="cols">
+        <div><b>Le jeton (6 × 6 cm)</b> est remis au propriétaire du téléphone.
+          <ul><li>Numéro et série</li><li>Code secret de 5 caractères</li><li>Motif unique</li><li>Micro-texte sur le contour</li><li>Place pour le cachet</li></ul></div>
+        <div><b>Le talon (3 × 6 cm)</b> reste collé au dos du téléphone, avec du scotch ou un élastique.
+          <ul><li>Même numéro, même code, même motif</li><li>Modèle du téléphone</li><li>Nom du client, heure de dépôt</li></ul></div>
+      </div>
+      <h3>Au dépôt</h3>
+      <ol>
+        <li>Prenez le prochain jeton de la planche. Notez la date et l'heure sur le jeton et sur le talon.</li>
+        <li>Sur le talon, écrivez le modèle et la couleur du téléphone (ex. « Tecno Spark 10, bleu »), et le prénom du client.</li>
+        <li>Apposez votre <b>cachet ou signature</b> dans le rond du jeton. Une photocopie couleur ne reproduit pas un tampon frais.</li>
+        <li>Collez le talon sur le téléphone. Donnez le jeton au client.</li>
+      </ol>
+      <h3>Au retrait</h3>
+      <ol>
+        <li>Le client présente son jeton. Vérifiez la <b>couleur et la série</b> du lot en cours.</li>
+        <li>Retrouvez le téléphone dont le talon porte <b>le même numéro</b>. Comparez <b>le code</b> et <b>le motif</b> : ils doivent être identiques.</li>
+        <li>Vérifiez votre cachet ou signature sur le jeton. En cas de doute, contrôlez le code dans l'onglet « Vérifier un jeton ».</li>
+        <li>Rendez le téléphone. <b>Gardez le jeton et le talon</b> (ou déchirez-les) pour qu'ils ne servent jamais deux fois.</li>
+      </ol>
+      <div class="note"><strong>Jeton perdu ?</strong> Ne rendez le téléphone qu'après une pièce d'identité et la preuve que le client peut le déverrouiller (code ou empreinte). Notez son nom sur le talon.</div>
+      <div class="note"><strong>Pourquoi c'est difficile à falsifier :</strong> le code et le motif sont calculés à partir du mot secret, donc un faussaire ne peut pas deviner ceux d'un numéro qu'il n'a pas vu. Le cachet frais, la couleur du lot et le micro-texte rendent la photocopie visible. Et le talon sur le téléphone sert de preuve de référence.</div>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+  // ---------- SHA-256 synchrone (fonctionne aussi hors ligne, en fichier local) ----------
+  const K = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+  function sha256(str) {
+    const bytes = new TextEncoder().encode(str);
+    const len = bytes.length, bitLen = len * 8;
+    const total = ((len + 9 + 63) >> 6) << 6;
+    const m = new Uint8Array(total); m.set(bytes); m[len] = 0x80;
+    const dv = new DataView(m.buffer);
+    dv.setUint32(total - 4, bitLen >>> 0); dv.setUint32(total - 8, Math.floor(bitLen / 2**32));
+    const H = new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
+    const W = new Uint32Array(64);
+    const r = (x, n) => (x >>> n) | (x << (32 - n));
+    for (let o = 0; o < total; o += 64) {
+      for (let i = 0; i < 16; i++) W[i] = dv.getUint32(o + i * 4);
+      for (let i = 16; i < 64; i++) {
+        const s0 = r(W[i-15],7) ^ r(W[i-15],18) ^ (W[i-15] >>> 3);
+        const s1 = r(W[i-2],17) ^ r(W[i-2],19) ^ (W[i-2] >>> 10);
+        W[i] = (W[i-16] + s0 + W[i-7] + s1) >>> 0;
+      }
+      let [a,b,c,d,e,f,g,h] = H;
+      for (let i = 0; i < 64; i++) {
+        const t1 = (h + (r(e,6) ^ r(e,11) ^ r(e,25)) + ((e & f) ^ (~e & g)) + K[i] + W[i]) >>> 0;
+        const t2 = ((r(a,2) ^ r(a,13) ^ r(a,22)) + ((a & b) ^ (a & c) ^ (b & c))) >>> 0;
+        h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+      }
+      H[0]+=a; H[1]+=b; H[2]+=c; H[3]+=d; H[4]+=e; H[5]+=f; H[6]+=g; H[7]+=h;
+    }
+    const out = new Uint8Array(32); const odv = new DataView(out.buffer);
+    H.forEach((v, i) => odv.setUint32(i * 4, v)); return out;
+  }
+
+  const ALPHA = "ACDEFHJKMNPRTUVWXY34679"; // sans 0/O, 1/I/L, 5/S, 8/B, 2/Z
+  const SERIES = "ABCDEFGHJKLMNPRSTUVWXYZ".split("");
+  const INKS = [
+    { name: "Vert", v: "#0f6b5c" }, { name: "Bleu", v: "#1d4e9e" }, { name: "Bordeaux", v: "#8c1d3a" },
+    { name: "Violet", v: "#5b2d8e" }, { name: "Orange", v: "#b8520a" }, { name: "Noir", v: "#1b1b1b" }
+  ];
+  const $ = (id) => document.getElementById(id);
+  const pad = (n) => String(n).padStart(4, "0");
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  function tokenData(secret, serie, num) {
+    const h = sha256(`${secret}|${serie}|${num}`);
+    let code = ""; for (let i = 0; i < 5; i++) code += ALPHA[h[i] % ALPHA.length];
+    const bits = []; for (let i = 0; i < 15; i++) bits.push((h[8 + (i >> 3)] >> (i & 7)) & 1);
+    return { code, bits, seed: h[20] / 255, seed2: h[21] / 255 };
+  }
+
+  // Motif 5×5 symétrique (comme une empreinte visuelle)
+  function motifSVG(bits, ink) {
+    let rects = "";
+    for (let y = 0; y < 5; y++) for (let x = 0; x < 3; x++) {
+      if (bits[y * 3 + x]) {
+        rects += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
+        if (x < 2) rects += `<rect x="${4 - x}" y="${y}" width="1" height="1"/>`;
+      }
+    }
+    return `<svg class="motif" viewBox="0 0 5 5" shape-rendering="crispEdges" aria-label="Motif de contrôle"><g fill="${ink}">${rects}</g></svg>`;
+  }
+
+  // Fond guilloché (rosace) + micro-texte sur le contour, calculés par numéro
+  function guillocheSVG(w, h, ink, seed, seed2, micro, id) {
+    const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.46;
+    let paths = "";
+    const k = 7 + Math.floor(seed * 5), m = 0.18 + seed2 * 0.12;
+    for (let j = 0; j < 9; j++) {
+      const rr = R * (0.35 + j * 0.075), ph = j * 0.35 + seed * 6;
+      let d = "";
+      for (let t = 0; t <= 360; t += 3) {
+        const a = t * Math.PI / 180;
+        const r = rr * (1 + m * Math.sin(k * a + ph) * Math.cos(3 * a));
+        d += (t ? "L" : "M") + (cx + r * Math.cos(a)).toFixed(1) + " " + (cy + r * Math.sin(a)).toFixed(1);
+      }
+      paths += `<path d="${d}Z"/>`;
+    }
+    const inset = 4;
+    const rp = `M${inset} ${inset}H${w - inset}V${h - inset}H${inset}Z`;
+    const txt = (micro + " · ").repeat(30);
+    return `<svg class="bgart" viewBox="0 0 ${w} ${h}" aria-hidden="true">
+      <g fill="none" stroke="${ink}" stroke-width=".35" opacity=".22">${paths}</g>
+      <rect x="2" y="2" width="${w - 4}" height="${h - 4}" fill="none" stroke="${ink}" stroke-width=".8"/>
+      <path id="${id}" d="${rp}" fill="none"/>
+      <text font-size="2.6" font-family="IBM Plex Mono, monospace" fill="${ink}" letter-spacing=".15"><textPath href="#${id}">${esc(txt)}</textPath></text>
+    </svg>`;
+  }
+
+  // ---------- Construction de l'interface ----------
+  const selSerie = $("f-serie"), vSerie = $("v-serie");
+  for (const s of SERIES) { selSerie.add(new Option(s, s)); vSerie.add(new Option(s, s)); }
+  let ink = INKS[0].v;
+  INKS.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.style.background = c.v; b.title = c.name; b.setAttribute("aria-label", "Encre " + c.name);
+    b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+    b.onclick = () => { ink = c.v; [...$("swatches").children].forEach((x) => x.setAttribute("aria-pressed", x === b ? "true" : "false")); render(); };
+    $("swatches").appendChild(b);
+  });
+
+  function cfg() {
+    return {
+      name: $("f-name").value.trim() || "Cabine de charge",
+      sub: $("f-sub").value.trim(),
+      secret: $("f-secret").value,
+      serie: selSerie.value,
+      validity: $("f-validity").value,
+      start: Math.max(1, Math.min(9999, parseInt($("f-start").value, 10) || 1)),
+      count: Math.max(1, Math.min(400, parseInt($("f-count").value, 10) || 1)),
+    };
+  }
+
+  function pairHTML(c, num, uid) {
+    const t = tokenData(c.secret, c.serie, num);
+    const micro = `${c.name} ${c.serie}-${pad(num)}`.toUpperCase();
+    // 1 cm ≈ 37.8 px ; on dessine en unités ~ px pour 6×6 cm et 3.1×6 cm
+    return `<div class="pair" style="--ink:${ink}">
+      <div class="token">
+        ${guillocheSVG(227, 227, ink, t.seed, t.seed2, micro, "mt" + uid)}
+        <div class="t-in">
+          <div class="t-brand">${esc(c.name)}</div>
+          ${c.sub ? `<div class="t-sub">${esc(c.sub)}</div>` : ""}
+          <div class="t-num"><small>${c.serie}</small>${pad(num)}</div>
+          <div class="t-mid">
+            ${motifSVG(t.bits, ink)}
+            <div><span class="t-codelbl">Code</span><span class="t-code">${t.code}</span></div>
+          </div>
+          <div class="t-fill">Déposé le <span></span> à <span></span></div>
+          <div class="t-rule">Jeton à rendre pour récupérer le téléphone · valable ${esc(c.validity)}</div>
+        </div>
+        <div class="cachet">cachet</div>
+      </div>
+      <div class="stub">
+        ${guillocheSVG(117, 227, ink, t.seed2, t.seed, micro, "ms" + uid)}
+        <div class="s-in">
+          <div class="s-head">Talon téléphone</div>
+          <div class="s-num"><small>${c.serie}</small>${pad(num)}</div>
+          ${motifSVG(t.bits, ink)}
+          <span class="t-code" style="font-size:8pt">${t.code}</span>
+          <div class="s-fill">Modèle<span></span>Client<span></span>Date / heure<span></span></div>
+          <div class="s-foot">Reste collé au téléphone</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function render() {
+    const c = cfg();
+    const per = 8, nums = Array.from({ length: c.count }, (_, i) => c.start + i).filter((n) => n <= 9999);
+    let html = "";
+    for (let p = 0; p < nums.length; p += per) {
+      const chunk = nums.slice(p, p + per);
+      html += `<div class="sheet">${chunk.map((n) => pairHTML(c, n, `${c.serie}${n}`)).join("")}
+        <div class="sheet-foot"><span>${esc(c.name)} · Série ${c.serie} · n° ${pad(chunk[0])} à ${pad(chunk[chunk.length - 1])}</span><span>Feuille ${p / per + 1} / ${Math.ceil(nums.length / per)}</span></div></div>`;
+    }
+    $("sheets").innerHTML = html;
+    $("summary").textContent = `${nums.length} jeton${nums.length > 1 ? "s" : ""} · ${Math.ceil(nums.length / per)} feuille${nums.length > per ? "s" : ""} A4 · série ${c.serie}, n° ${pad(nums[0])} à ${pad(nums[nums.length - 1])}`;
+    verify();
+  }
+
+  function verify() {
+    const c = cfg();
+    const num = parseInt($("v-num").value, 10);
+    const code = $("v-code").value.trim().toUpperCase();
+    const out = $("v-result");
+    if (!num || code.length < 5) { out.innerHTML = `<div class="note">Entrez le numéro et les 5 caractères du code.</div>`; return; }
+    const t = tokenData(c.secret, vSerie.value, num);
+    const ok = t.code === code;
+    out.innerHTML = `<div class="result ${ok ? "ok" : "bad"}">
+      ${ok ? motifSVG(t.bits, "currentColor") : `<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 8l8 8M16 8l-8 8"/></svg>`}
+      <div>${ok
+        ? `<strong>Code valide pour ${vSerie.value}-${pad(num)}</strong><p>Le motif du jeton doit ressembler exactement à celui-ci. Comparez-le aussi avec le talon du téléphone.</p>`
+        : `<strong>Code invalide</strong><p>Ce code ne correspond pas au n° ${vSerie.value}-${pad(num)}. Vérifiez la saisie (série, numéro), puis refusez le jeton s'il ne correspond toujours pas.</p>`}</div>
+    </div>`;
+  }
+
+  // Onglets
+  document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => {
+    document.querySelectorAll(".tabs button").forEach((x) => x.setAttribute("aria-selected", x === b ? "true" : "false"));
+    document.querySelectorAll("[data-view]").forEach((s) => { s.hidden = s.dataset.view !== b.dataset.tab; });
+  }));
+
+  $("cfg").addEventListener("input", render);
+  $("cfg").addEventListener("submit", (e) => e.preventDefault());
+  $("vf").addEventListener("input", verify);
+  $("vf").addEventListener("submit", (e) => e.preventDefault());
+  selSerie.addEventListener("change", () => { vSerie.value = selSerie.value; });
+
+  // Bouton Imprimer : seulement quand le fichier est ouvert directement dans un navigateur
+  let standalone = false; try { standalone = window.self === window.top; } catch (e) {}
+  if (standalone) document.documentElement.classList.add("standalone");
+  $("btn-print").addEventListener("click", () => {
+    document.querySelector('[data-tab="planche"]').click(); window.print();
+  });
+
+  render();
+  // Exemple pré-rempli dans l'onglet Vérifier
+  $("v-code").value = tokenData(cfg().secret, "A", 7).code; verify();
+})();
+</script>
