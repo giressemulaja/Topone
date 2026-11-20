@@ -172,6 +172,7 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
     <div class="actions">
       <button class="btn" id="btn-pdf" type="button" data-only-standalone>Télécharger en PDF</button>
       <button class="btn ghost" id="btn-print" type="button" data-only-standalone>Imprimer</button>
+      <button class="btn ghost" id="btn-logout" type="button">Se déconnecter</button>
     </div>
   </header>
 
@@ -287,6 +288,7 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
 <!--QRLIB-->
 <!--PDFLIBS-->
 <!--CORE-->
+<!--AUTH-->
 <script>
 (() => {
   const { SERIES, pad, esc, tokenData, motifSVG } = window.CabineCore;
@@ -467,8 +469,10 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
     document.querySelector('[data-tab="planche"]').click(); window.print();
   });
 
+  $("btn-logout").addEventListener("click", () => window.CabineAuth.logout());
   render();
   // Exemple pré-rempli dans l'onglet Vérifier
   $("v-code").value = tokenData(cfg().secret, "A", 7).code; verify();
+  window.CabineAuth.require("Jetons Cabine de Charge", () => {});
 })();
 </script>

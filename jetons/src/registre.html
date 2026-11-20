@@ -146,6 +146,11 @@ nav.tabs button[aria-current="page"] { color: var(--accent); background: var(--b
       <button class="btn ghost" type="button" id="btn-reveal">Afficher le mot secret</button>
       <button class="btn ghost" type="button" id="btn-reconf">Changer le nom ou le mot secret</button>
     </div>
+    <div class="card">
+      <h2>Session</h2>
+      <p class="muted">L'application se verrouille seule après 15 minutes sans activité. Déconnectez-vous si vous prêtez le téléphone.</p>
+      <button class="btn danger" type="button" id="btn-logout">Se déconnecter</button>
+    </div>
   </section>
 </main>
 
@@ -158,6 +163,7 @@ nav.tabs button[aria-current="page"] { color: var(--accent); background: var(--b
 
 <!--JSQR-->
 <!--CORE-->
+<!--AUTH-->
 <script>
 (() => {
   const { SERIES, pad, esc, tokenData, motifSVG, sha256 } = window.CabineCore;
@@ -492,7 +498,9 @@ nav.tabs button[aria-current="page"] { color: var(--accent); background: var(--b
     document.querySelector(".scanner")?.remove();
   }
 
+  $("btn-logout").onclick = () => window.CabineAuth.logout();
   header(); go(db.secret ? "depot" : "setup");
+  window.CabineAuth.require("Registre de la cabine", () => {});
   if (!db.secret) { show("setup"); }
 })();
 </script>

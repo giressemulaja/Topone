@@ -11,6 +11,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).parent
 SRC = ROOT / "src"
+EARLY = ('<script>document.documentElement.classList.add("locked")</script>'
+         '<style>html.locked body > :not(.gate) { display: none !important; }</style>')
 HEAD = ('<!doctype html>\n<html lang="fr">\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n')
 
@@ -22,6 +24,9 @@ def script(path):
 def build(src, out):
     html = (SRC / src).read_text(encoding="utf-8")
     html = html.replace("<!--CORE-->", script("core.js"))
+    html = html.replace("<!--AUTH-->", script("auth.js"))
+    # Cache le contenu dès le chargement, avant même que l'écran de connexion soit prêt
+    html = html.replace("</title>", "</title>\n" + EARLY, 1)
     html = html.replace("<!--QRLIB-->", script("vendor/qrcode-generator-1.4.4.js"))
     html = html.replace("<!--PDFLIBS-->", script("vendor/html2canvas-1.4.1.min.js") + "\n" + script("vendor/jspdf-2.5.1.umd.min.js"))
     html = html.replace("<!--JSQR-->", script("vendor/jsQR-1.4.0.js"))

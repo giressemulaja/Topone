@@ -18,6 +18,20 @@ Les deux outils doivent utiliser **le même mot secret**.
 | Copie parfaite présentée avant le vrai client | Le code de retrait (4 chiffres) n'est imprimé nulle part ; sinon, déverrouillage du téléphone devant le responsable. |
 | Photocopie | Cachet sec en relief ou signature au stylo, couleur et série du lot, micro-texte. |
 
+## Connexion
+
+Les deux outils demandent un identifiant et un mot de passe (communiqués séparément au propriétaire de la cabine). Le mot de passe n'est **pas** écrit dans les fichiers : seule son empreinte (SHA-256 répété, avec sel) y figure. La session se verrouille après 15 minutes d'inactivité ; 5 essais ratés bloquent la connexion quelques minutes.
+
+Pour changer l'identifiant ou le mot de passe, calculez la nouvelle empreinte puis reconstruisez :
+
+```
+node -e "global.window={};eval(require('fs').readFileSync('src/core.js','utf8'));const s='cabine-jetons-v1';let h=s+'|IDENTIFIANT|MOTDEPASSE';for(let i=0;i<20000;i++)h=Buffer.from(window.CabineCore.sha256(s+h)).toString('hex');console.log(h)"
+```
+
+Remplacez `AUTH_HASH` dans `src/auth.js` par le résultat, puis lancez `python3 build.py`.
+
+Cette protection empêche une personne qui prend le téléphone ou l'ordinateur d'utiliser les outils. Elle ne remplace pas un vrai serveur : quelqu'un qui sait lire le code d'une page web pourrait la contourner. Gardez donc aussi le téléphone verrouillé par son propre code.
+
 ## Important
 
 - Le registre et les photos sont stockés dans le navigateur du téléphone (photos des téléphones rendus effacées après 30 jours). Faites **une sauvegarde chaque soir** (onglet Réglages) et gardez-la ailleurs (clé USB, ordinateur).
