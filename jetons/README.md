@@ -21,7 +21,6 @@ Les deux outils doivent utiliser **le même mot secret**.
 ## Un numéro ne sert qu'une fois
 
 - **À l'émission** : l'outil d'impression garde la liste des numéros déjà émis, série par série, dès qu'un PDF est téléchargé ou une impression lancée. Il démarre toujours au prochain numéro libre et bloque le PDF et l'impression si une plage contient un numéro déjà émis. Cette liste est conservée dans le navigateur de l'ordinateur : utilisez toujours le même ordinateur et le même navigateur pour émettre les jetons.
-- **Horodatage** : chaque jeton et son talon portent la date et l'heure exactes de leur émission (à la seconde), imprimées automatiquement. Le registre horodate automatiquement le dépôt et le retrait.
 - **Au comptoir** : le registre refuse un jeton dont le numéro a déjà servi (« Numéro déjà utilisé » au dépôt, « Déjà rendu : copie probable » au retrait). L'historique des numéros n'est jamais effacé (seules les photos anciennes le sont).
 
 ## Connexion

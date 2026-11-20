@@ -122,7 +122,7 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
 .t-codelbl { font: 600 4.6pt var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: #444; display: block; margin-bottom: 1px; }
 .motif { width: 1.2cm; height: 1.2cm; display: block; flex: none; }
 .t-fill { font: 500 5.4pt/1.5 var(--f-body); color: #222; margin-top: auto; width: 100%; text-align: left; background: rgba(255,255,255,.85); padding: 2px 3px; }
-.t-fill b, .s-fill b { font-family: var(--f-mono); font-weight: 700; color: #111; letter-spacing: .02em; }
+.t-fill span { display: inline-block; border-bottom: .5px solid #555; min-width: .9cm; }
 .t-rule { font: 600 5pt/1.25 var(--f-body); color: #fff; background: var(--ink); width: calc(100% + .56cm); margin: 3px -.28cm -.28cm; padding: 2px 4px; }
 .t-qr { width: 1.55cm; height: 1.55cm; background: #fff; flex: none; }
 .t-low { display: flex; align-items: center; justify-content: space-between; gap: .2cm; width: 100%; margin-top: .2cm; }
@@ -136,7 +136,6 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
 .s-num small { font-size: 7pt; }
 .s-fill { font: 500 5pt/1.65 var(--f-body); color: #222; width: 100%; text-align: left; margin-top: auto; background: rgba(255,255,255,.85); }
 .s-fill span { display: block; border-bottom: .5px solid #555; height: 8.5pt; }
-.s-fill .ts { display: block; height: auto; border-bottom: 0; line-height: 1.3; margin-top: 3px; }
 .s-foot { font: 600 4.6pt/1.2 var(--f-body); color: #444; }
 .scissors { font-size: 7pt; color: #999; position: absolute; top: -6pt; left: -4pt; }
 
@@ -288,7 +287,7 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
       <h3>Au dépôt</h3>
       <ol>
         <li>Prenez le prochain jeton. Dans l'application <b>Registre</b>, scannez son QR code (ou tapez le numéro et le code), puis <b>photographiez le téléphone</b> et enregistrez son modèle et le <b>code de retrait</b> choisi par le client (4 chiffres, par exemple la fin de son numéro). Ce code n'est écrit nulle part sur le jeton.</li>
-        <li>La date et l'heure du dépôt sont enregistrées automatiquement par le Registre, à la seconde près. L'heure d'émission est déjà imprimée sur le jeton et le talon.</li>
+        <li>Notez la date et l'heure sur le jeton et sur le talon.</li>
         <li>Sur le talon, écrivez le modèle et la couleur du téléphone (ex. « Tecno Spark 10, bleu »), et le prénom du client.</li>
         <li>Pressez votre <b>cachet sec</b> (pince à gaufrer) ou signez au stylo dans le rond du jeton. Une photocopie ne reproduit pas le relief.</li>
         <li>Collez le talon sur le téléphone. Donnez le jeton au client.</li>
@@ -370,15 +369,6 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
     $("swatches").appendChild(b);
   });
 
-  // Horodatage imprimé sur chaque jeton : heure exacte de l'émission (PDF ou impression)
-  let stamp = 0, exporting = false;
-  const stampText = (t) => {
-    const d = new Date(t), p2 = (n) => String(n).padStart(2, "0");
-    return `${p2(d.getDate())}/${p2(d.getMonth() + 1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}:${p2(d.getSeconds())}`;
-  };
-  // L'aperçu suit l'heure courante
-  setInterval(() => { if (!exporting && !document.hidden && !document.documentElement.classList.contains("locked")) render(); }, 30000);
-
   function cfg() {
     return {
       name: $("f-name").value.trim() || "Cabine de charge",
@@ -386,7 +376,6 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
       secret: $("f-secret").value,
       serie: selSerie.value,
       validity: $("f-validity").value,
-      stamp: stamp || Date.now(),
       start: Math.max(1, Math.min(9999, parseInt($("f-start").value, 10) || 1)),
       count: Math.max(1, Math.min(400, parseInt($("f-count").value, 10) || 1)),
     };
@@ -412,7 +401,7 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
             <div class="t-hint">Pour récupérer votre téléphone, présentez ce jeton et donnez votre code de retrait.</div>
             <div class="cachet">cachet sec<br>signature</div>
           </div>
-          <div class="t-fill">Émis le <b>${stampText(c.stamp)}</b></div>
+          <div class="t-fill">Déposé le <span></span> à <span></span></div>
           <div class="t-rule">Jeton à rendre pour récupérer le téléphone · valable ${esc(c.validity)}</div>
         </div>
       </div>
@@ -423,7 +412,7 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
           <div class="s-num"><small>${c.serie}</small>${pad(num)}</div>
           ${motifSVG(t.bits, ink)}
           <span class="t-code" style="font-size:8pt">${t.code}</span>
-          <div class="s-fill">Modèle<span></span>Client<span></span><span class="ts">Émis le<br><b>${stampText(c.stamp)}</b></span></div>
+          <div class="s-fill">Modèle<span></span>Client<span></span>Date / heure<span></span></div>
           <div class="s-foot">Reste collé au téléphone</div>
         </div>
       </div>
@@ -475,8 +464,8 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
   const fmtDate = (t) => new Date(t).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
   const nextFree = (serie) => (issued[serie] || []).reduce((m, r) => Math.max(m, r.to + 1), 1);
   function overlaps(serie, from, to) { return (issued[serie] || []).filter((r) => r.from <= to && r.to >= from); }
-  function markIssued(serie, from, to, how, at) {
-    (issued[serie] = issued[serie] || []).push({ from, to, at: at || Date.now(), how });
+  function markIssued(serie, from, to, how) {
+    (issued[serie] = issued[serie] || []).push({ from, to, at: Date.now(), how });
     saveIssued();
     const nf = nextFree(serie);
     if (nf <= 9999) { $("f-start").value = nf; }
@@ -523,7 +512,6 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
     const btn = $("btn-pdf"), c = cfg();
     if (!window.jspdf || !window.html2canvas) return;
     btn.disabled = true; const label = btn.textContent;
-    exporting = true; stamp = Date.now(); render();
     try {
       document.querySelector('[data-tab="planche"]').click();
       if (document.fonts && document.fonts.ready) await document.fonts.ready;
@@ -540,20 +528,17 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
       const slug = c.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
       if (!checkIssued()) return;
       pdf.save(`jetons-${slug}-serie-${c.serie}-${pad(first)}-${pad(last)}.pdf`);
-      const at = stamp; stamp = 0;
-      markIssued(c.serie, first, last, "PDF", at);
+      markIssued(c.serie, first, last, "PDF");
     } catch (e) {
       alert("Le PDF n'a pas pu être créé. Utilisez le bouton Imprimer puis « Enregistrer au format PDF ».");
-    } finally { exporting = false; stamp = 0; btn.disabled = false; btn.textContent = label; render(); }
+    } finally { btn.disabled = false; btn.textContent = label; }
   });
 
   $("btn-print").addEventListener("click", () => {
     if (!checkIssued()) return;
     const c = cfg(), first = c.start, last = Math.min(9999, c.start + c.count - 1);
-    stamp = Date.now(); render(); const at = stamp;
     document.querySelector('[data-tab="planche"]').click(); window.print();
-    stamp = 0;
-    markIssued(c.serie, first, last, "impression", at);
+    markIssued(c.serie, first, last, "impression");
   });
 
   $("btn-logout").addEventListener("click", () => window.CabineAuth.logout());
