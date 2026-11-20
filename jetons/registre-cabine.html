@@ -57,7 +57,7 @@ input.pin { font-family: var(--f-mono); font-size: 1.6rem; letter-spacing: .5em;
 .facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; }
 .facts dt { color: var(--muted); font-size: .85rem; }
 .facts dd { margin: 0; font-weight: 600; }
-.motif { width: 56px; height: 56px; border: 1px solid currentColor; padding: 2px; background: #fff; }
+.motif { width: 60px; height: 60px; display: block; flex: none; }
 .tokenline { display: flex; align-items: center; gap: 12px; }
 .tokenline .num { font: 800 1.6rem var(--f-mono); }
 .list { display: grid; gap: 8px; }
@@ -83,6 +83,11 @@ nav.tabs button[aria-current="page"] { color: var(--accent); background: var(--b
 .scanner .frame div { width: min(64vw, 280px); aspect-ratio: 1; border: 3px solid #fff; border-radius: 16px; box-shadow: 0 0 0 100vmax rgba(0,0,0,.45); }
 .scanner .bar { padding: 14px max(16px, env(safe-area-inset-left, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 8px; background: #000; color: #fff; text-align: center; }
 .scanner .bar .btn { background: #fff; color: #000; border-color: #fff; }
+.photo-pick { display: grid; place-items: center; gap: 6px; min-height: 150px; border: 2px dashed var(--line); border-radius: 10px; background: var(--bg); color: var(--accent); font-weight: 700; cursor: pointer; text-align: center; padding: 12px; overflow: hidden; }
+.photo-pick img { width: 100%; max-height: 260px; object-fit: contain; border-radius: 6px; }
+.photo-pick svg { width: 34px; height: 34px; }
+.phone-photo { width: 100%; max-height: 340px; object-fit: contain; border-radius: 10px; background: #000; display: block; }
+.photo-cap { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(92px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--panel); padding: 10px 16px; border-radius: 99px; font-weight: 600; z-index: 30; max-width: calc(100% - 32px); }
 </style>
 
@@ -133,7 +138,7 @@ nav.tabs button[aria-current="page"] { color: var(--accent); background: var(--b
   <section data-view="settings" hidden>
     <div class="card">
       <h2>Sauvegarde</h2>
-      <p class="muted">Le registre est enregistré dans ce navigateur, sur ce téléphone uniquement. Faites une sauvegarde chaque soir : si le navigateur est vidé ou le téléphone perdu, c'est elle qui permet de tout retrouver.</p>
+      <p class="muted">Le registre et les photos sont enregistrés dans ce navigateur, sur ce téléphone uniquement. Faites une sauvegarde chaque soir : si le navigateur est vidé ou le téléphone perdu, c'est elle qui permet de tout retrouver. Les photos des téléphones rendus depuis plus de 30 jours sont effacées automatiquement.</p>
       <p class="muted" id="last-backup"></p>
       <button class="btn" type="button" id="btn-export">Télécharger une sauvegarde</button>
       <label class="btn ghost" for="f-import" style="text-align:center">Restaurer une sauvegarde</label>
@@ -10315,7 +10320,7 @@ window.CabineCore = (() => {
         if (x < 2) rects += `<rect x="${4 - x}" y="${y}" width="1" height="1"/>`;
       }
     }
-    return `<svg class="motif" viewBox="0 0 5 5" shape-rendering="crispEdges" aria-label="Motif de contrôle"><g fill="${ink}">${rects}</g></svg>`;
+    return `<svg class="motif" viewBox="-0.7 -0.7 6.4 6.4" shape-rendering="crispEdges" aria-label="Motif de contrôle"><rect x="-0.65" y="-0.65" width="6.3" height="6.3" fill="#fff" stroke="${ink}" stroke-width=".1"/><g fill="${ink}">${rects}</g></svg>`;
   }
   return { sha256, ALPHA, SERIES, pad, esc, tokenData, motifSVG };
 })();
@@ -10338,6 +10343,51 @@ window.CabineCore = (() => {
     catch (e) { toast("Enregistrement impossible : faites une sauvegarde tout de suite."); return false; }
   }
   const pinHash = (serie, num, pin) => hex(sha256(`${db.secret}|pin|${serie}|${num}|${pin}`));
+
+  // ---------- Photos (IndexedDB : plus de place que localStorage) ----------
+  let idbP = null;
+  function idb() {
+    if (!idbP) idbP = new Promise((res, rej) => {
+      const r = indexedDB.open("cabine-photos", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("photos");
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    });
+    return idbP;
+  }
+  async function photoOp(mode, fn) {
+    const d = await idb();
+    return new Promise((res, rej) => {
+      const tx = d.transaction("photos", mode); const req = fn(tx.objectStore("photos"));
+      tx.oncomplete = () => res(req && req.result); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error);
+    });
+  }
+  const photoPut = (id, data) => photoOp("readwrite", (s) => s.put(data, id));
+  const photoGet = (id) => photoOp("readonly", (s) => s.get(id)).catch(() => null);
+  const photoDel = (id) => photoOp("readwrite", (s) => s.delete(id)).catch(() => {});
+  const photoAll = () => photoOp("readonly", (s) => s.getAllKeys()).then(async (keys) => {
+    const out = {}; for (const k of keys || []) out[k] = await photoGet(k); return out;
+  });
+  // Réduit la photo (900 px max, JPEG) pour économiser la place
+  function shrink(file) {
+    return new Promise((res, rej) => {
+      const url = URL.createObjectURL(file), img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, 900 / Math.max(img.width, img.height));
+        const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+        res(c.toDataURL("image/jpeg", 0.75));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("image")); };
+      img.src = url;
+    });
+  }
+  try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
+  // Purge des photos de téléphones rendus depuis plus de 30 jours
+  (async () => {
+    const limit = Date.now() - 30 * 24 * 3600 * 1000;
+    for (const t of Object.values(db.tokens)) if (t.photo && t.returnedAt && t.returnedAt < limit) { await photoDel(t.id); t.photo = false; }
+    save();
+  })().catch(() => {});
 
   // ---------- Navigation ----------
   let mode = "depot";
@@ -10434,6 +10484,10 @@ window.CabineCore = (() => {
   function depositForm(serie, num, code, head) {
     result("ok", "Jeton authentique et libre", "Remplissez la fiche avec le client.", `${head}
       <form id="dep" class="card" style="margin-top:8px" autocomplete="off">
+        <div class="field"><label for="d-photo">Photo du téléphone</label>
+          <label class="photo-pick" for="d-photo" id="d-photo-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Prendre la photo du téléphone</label>
+          <input id="d-photo" type="file" accept="image/*" capture="environment" hidden>
+          <span class="muted">Photographiez l'avant et l'arrière visibles si possible (coque, fissures, autocollants).</span></div>
         <div class="field"><label for="d-model">Téléphone (marque, modèle, couleur)</label><input id="d-model" required placeholder="ex. Tecno Spark 10, bleu"></div>
         <div class="field"><label for="d-client">Prénom du client</label><input id="d-client" placeholder="facultatif"></div>
         <div class="field"><label for="d-pin">Code de retrait choisi par le client (4 chiffres)</label>
@@ -10441,16 +10495,27 @@ window.CabineCore = (() => {
           <span class="muted">Par exemple les 4 derniers chiffres de son numéro. Ne l'écrivez pas sur le jeton.</span></div>
         <button class="btn" type="submit">Enregistrer le dépôt</button>
       </form>`);
-    $("d-model").focus();
-    $("dep").addEventListener("submit", (e) => {
+    let photo = null;
+    $("d-photo").addEventListener("change", async (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      try {
+        photo = await shrink(f);
+        $("d-photo-box").innerHTML = `<img src="${photo}" alt="Photo du téléphone déposé"><span>Reprendre la photo</span>`;
+      } catch (err) { toast("Photo illisible : reprenez-la."); }
+    });
+    $("dep").addEventListener("submit", async (e) => {
       e.preventDefault();
+      if (!photo) { toast("Prenez d'abord la photo du téléphone."); $("d-photo-box").scrollIntoView({ block: "center" }); return; }
       const pin = $("d-pin").value.trim();
       if (!/^\d{4}$/.test(pin)) { toast("Le code de retrait doit faire 4 chiffres."); return; }
       const id = idOf(serie, num);
-      db.tokens[id] = { id, serie, num, code, model: $("d-model").value.trim(), client: $("d-client").value.trim(), pin: pinHash(serie, num, pin), depositAt: Date.now(), returnedAt: 0, how: "", tries: 0 };
+      try { await photoPut(id, photo); }
+      catch (err) { toast("Photo non enregistrée : mémoire pleine ? Faites une sauvegarde puis réessayez."); return; }
+      db.tokens[id] = { id, serie, num, code, model: $("d-model").value.trim(), client: $("d-client").value.trim(), pin: pinHash(serie, num, pin), photo: true, depositAt: Date.now(), returnedAt: 0, how: "", tries: 0 };
       if (save()) {
         header();
-        result("ok", `Dépôt ${id} enregistré`, "Notez l'heure sur le jeton et le talon, collez le talon sur le téléphone, puis donnez le jeton au client.", head);
+        result("ok", `Dépôt ${id} enregistré`, "Notez l'heure sur le jeton et le talon, collez le talon sur le téléphone, puis donnez le jeton au client.",
+          `${head}<img class="phone-photo" src="${photo}" alt="Photo du téléphone ${id}">`);
       }
     });
   }
@@ -10458,13 +10523,19 @@ window.CabineCore = (() => {
   // ---------- Retrait ----------
   function returnForm(rec, head) {
     const facts = `<dl class="facts"><dt>Déposé</dt><dd>${fmt(rec.depositAt)}</dd><dt>Téléphone</dt><dd>${esc(rec.model)}</dd>${rec.client ? `<dt>Client</dt><dd>${esc(rec.client)}</dd>` : ""}</dl>`;
-    result("ok", "Jeton authentique, téléphone en dépôt", "Demandez au client son code de retrait.", `${head}${facts}
+    result("ok", "Jeton authentique, téléphone en dépôt", "Retrouvez le téléphone de la photo, puis demandez au client son code de retrait.", `${head}
+      <div id="r-photo"><p class="photo-cap">Chargement de la photo…</p></div>${facts}
       <form id="ret" class="card" style="margin-top:8px" autocomplete="off">
         <div class="field"><label for="r-pin">Code de retrait dit par le client</label>
           <input id="r-pin" class="pin" required inputmode="numeric" maxlength="4" placeholder="••••"></div>
         <button class="btn" type="submit">Contrôler le code</button>
       </form><div id="ret-out"></div>`);
-    $("r-pin").focus();
+    photoGet(rec.id).then((data) => {
+      const box = $("r-photo"); if (!box) return;
+      box.innerHTML = data
+        ? `<img class="phone-photo" src="${data}" alt="Photo du téléphone ${rec.id} prise au dépôt"><p class="photo-cap">Photo prise au dépôt, ${fmt(rec.depositAt)}. Le téléphone doit être le même.</p>`
+        : `<p class="photo-cap">Pas de photo pour ce dépôt.</p>`;
+    });
     $("ret").addEventListener("submit", (e) => {
       e.preventDefault();
       const ok = pinHash(rec.serie, rec.num, $("r-pin").value.trim()) === rec.pin;
@@ -10483,7 +10554,8 @@ window.CabineCore = (() => {
     if (!save()) return;
     header();
     $("scan-result").innerHTML = `<div class="status ok"><b>Rendez le téléphone ${rec.id}</b>
-      <p>${esc(rec.model)}. Le jeton est maintenant marqué « rendu » : gardez-le, il ne pourra plus jamais servir.</p></div>`;
+      <p>${esc(rec.model)}. Le jeton est maintenant marqué « rendu » : gardez-le, il ne pourra plus jamais servir.</p><div id="h-photo"></div></div>`;
+    photoGet(rec.id).then((d) => { if (d && $("h-photo")) $("h-photo").innerHTML = `<img class="phone-photo" src="${d}" alt="Photo du téléphone ${rec.id}">`; });
   }
 
   // ---------- Liste ----------
@@ -10517,9 +10589,10 @@ window.CabineCore = (() => {
   }
   $("btn-reveal").onclick = () => { $("i-secret").textContent = db.secret; };
   $("btn-reconf").onclick = () => { $("s-name").value = db.name; $("s-secret").value = db.secret; delete $("setup-form").dataset.confirm; show("setup"); };
-  $("btn-export").onclick = () => {
+  $("btn-export").onclick = async () => {
     db.lastBackup = Date.now(); save();
-    const blob = new Blob([JSON.stringify(db, null, 1)], { type: "application/json" });
+    let photos = {}; try { photos = await photoAll(); } catch (e) {}
+    const blob = new Blob([JSON.stringify(Object.assign({}, db, { photos }))], { type: "application/json" });
     const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
     a.download = `registre-cabine-${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(a); a.click(); a.remove();
@@ -10530,7 +10603,9 @@ window.CabineCore = (() => {
     try {
       const data = JSON.parse(await f.text());
       if (!data || typeof data.tokens !== "object" || !data.secret) throw new Error();
+      const photos = data.photos || {}; delete data.photos;
       db = Object.assign({ name: "", secret: "", tokens: {}, lastBackup: 0 }, data); save(); header(); renderSettings();
+      for (const [k, v] of Object.entries(photos)) { try { await photoPut(k, v); } catch (e) {} }
       toast(`Sauvegarde restaurée : ${Object.keys(db.tokens).length} jetons.`);
     } catch (err) { toast("Ce fichier n'est pas une sauvegarde du registre."); }
     e.target.value = "";

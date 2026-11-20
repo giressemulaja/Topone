@@ -101,16 +101,18 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
 .t-sub { font: 500 5.6pt/1.2 var(--f-body); color: #333; margin-top: 1px; }
 .t-num { font: 800 25pt/1 var(--f-display); color: var(--ink); margin-top: .12cm; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
 .t-num small { font-size: 9pt; font-weight: 600; margin-right: 2px; }
-.t-mid { display: flex; align-items: center; gap: .3cm; margin-top: .15cm; }
+.t-mid { display: flex; align-items: center; justify-content: space-between; gap: .15cm; margin-top: .12cm; width: 100%; }
 .t-code { font: 700 10.5pt var(--f-mono); letter-spacing: .12em; color: #111; background: #fff; padding: 1px 4px; border: 1px solid var(--ink); border-radius: 2px; }
 .t-codelbl { font: 600 4.6pt var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: #444; display: block; margin-bottom: 1px; }
-.motif { width: 1.3cm; height: 1.3cm; background: #fff; border: 1px solid var(--ink); padding: 1px; }
+.motif { width: 1.2cm; height: 1.2cm; display: block; flex: none; }
 .t-fill { font: 500 5.4pt/1.5 var(--f-body); color: #222; margin-top: auto; width: 100%; text-align: left; background: rgba(255,255,255,.85); padding: 2px 3px; }
 .t-fill span { display: inline-block; border-bottom: .5px solid #555; min-width: .9cm; }
 .t-rule { font: 600 5pt/1.25 var(--f-body); color: #fff; background: var(--ink); width: calc(100% + .56cm); margin: 3px -.28cm -.28cm; padding: 2px 4px; }
-.t-qr { position: absolute; left: .35cm; bottom: 1.05cm; width: 1.75cm; height: 1.75cm; background: #fff; padding: 1.5px; }
+.t-qr { width: 1.55cm; height: 1.55cm; background: #fff; flex: none; }
+.t-low { display: flex; align-items: center; justify-content: space-between; gap: .2cm; width: 100%; margin-top: .2cm; }
+.t-hint { font: 600 5.2pt/1.3 var(--f-body); color: #333; text-align: left; background: rgba(255,255,255,.85); padding: 1px 2px; }
 .t-qr svg { display: block; width: 100%; height: 100%; }
-.cachet { position: absolute; right: .4cm; bottom: 1.15cm; width: 1.35cm; height: 1.35cm; border: .6px dashed #888; border-radius: 50%; font: 500 4.4pt var(--f-body); color: #888; display: grid; place-items: center; text-align: center; line-height: 1.2; background: rgba(255,255,255,.6); }
+.cachet { flex: none; width: 1.3cm; height: 1.3cm; border: .6px dashed #888; border-radius: 50%; font: 500 4.4pt var(--f-body); color: #888; display: grid; place-items: center; text-align: center; line-height: 1.2; background: rgba(255,255,255,.6); }
 
 .s-in { position: absolute; inset: .22cm; display: flex; flex-direction: column; align-items: center; text-align: center; gap: .1cm; }
 .s-head { font: 700 5pt var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: #fff; background: var(--ink); width: calc(100% + .44cm); margin: -.22cm -.22cm 0; padding: 2px 0; }
@@ -142,6 +144,9 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
 .print-only { display: none; }
 [data-only-standalone] { display: none; }
 .standalone [data-only-standalone] { display: inline-block; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.actions .status-pdf { flex-basis: 100%; font-size: .85rem; color: var(--muted); text-align: right; }
+.btn:disabled { opacity: .55; cursor: progress; }
 
 @media print {
   @page { size: A4; margin: 0; }
@@ -164,7 +169,10 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
       <h1>Jetons Cabine de Charge</h1>
       <p>Chaque jeton a un numéro, un code secret et un motif uniques, calculés à partir du mot secret de la cabine. Le talon de même numéro reste collé au téléphone.</p>
     </div>
-    <button class="btn" id="btn-print" type="button" data-only-standalone>Imprimer les planches</button>
+    <div class="actions">
+      <button class="btn" id="btn-pdf" type="button" data-only-standalone>Télécharger en PDF</button>
+      <button class="btn ghost" id="btn-print" type="button" data-only-standalone>Imprimer</button>
+    </div>
   </header>
 
   <nav class="tabs" role="tablist">
@@ -220,7 +228,7 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
           <div class="swatches" id="swatches" role="group" aria-labelledby="lbl-ink"></div>
           <span class="hint">Changez de couleur et de série à chaque nouveau lot : un ancien jeton se repère tout de suite.</span>
         </div>
-        <div class="note"><strong>8 jetons par feuille A4.</strong> Imprimez en couleur, à 100 % (sans « ajuster à la page »), puis découpez le long des pointillés.</div>
+        <div class="note"><strong>8 jetons par feuille A4.</strong> Téléchargez le PDF, puis imprimez-le en couleur à 100 % (taille réelle, sans « ajuster à la page »). Découpez le long des pointillés.</div>
       </form>
 
       <div class="sheets" id="sheets-wrap">
@@ -257,7 +265,7 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
       </div>
       <h3>Au dépôt</h3>
       <ol>
-        <li>Prenez le prochain jeton. Dans l'application <b>Registre</b>, scannez son QR code (ou tapez le numéro et le code), puis enregistrez le modèle du téléphone et le <b>code de retrait</b> choisi par le client (4 chiffres, par exemple la fin de son numéro). Ce code n'est écrit nulle part sur le jeton.</li>
+        <li>Prenez le prochain jeton. Dans l'application <b>Registre</b>, scannez son QR code (ou tapez le numéro et le code), puis <b>photographiez le téléphone</b> et enregistrez son modèle et le <b>code de retrait</b> choisi par le client (4 chiffres, par exemple la fin de son numéro). Ce code n'est écrit nulle part sur le jeton.</li>
         <li>Notez la date et l'heure sur le jeton et sur le talon.</li>
         <li>Sur le talon, écrivez le modèle et la couleur du téléphone (ex. « Tecno Spark 10, bleu »), et le prénom du client.</li>
         <li>Pressez votre <b>cachet sec</b> (pince à gaufrer) ou signez au stylo dans le rond du jeton. Une photocopie ne reproduit pas le relief.</li>
@@ -266,7 +274,7 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
       <h3>Au retrait</h3>
       <ol>
         <li>Le client présente son jeton. Touchez le <b>relief du cachet sec</b> et vérifiez la couleur et la série du lot.</li>
-        <li>Scannez le QR dans le <b>Registre</b>. L'application dit si le jeton est inconnu, déjà rendu ou en dépôt.</li>
+        <li>Scannez le QR dans le <b>Registre</b>. L'application dit si le jeton est faux, déjà rendu ou en dépôt. S'il est valide, elle affiche <b>la photo prise au dépôt</b> : retrouvez ce téléphone.</li>
         <li>Demandez au client son <b>code de retrait</b> et tapez-le. Sans le bon code : demandez-lui de déverrouiller le téléphone devant vous.</li>
         <li>Vérifiez que le talon du téléphone porte le même numéro, code et motif. Rendez le téléphone : le Registre marque le jeton « rendu ». <b>Gardez le jeton</b>.</li>
       </ol>
@@ -277,6 +285,7 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
 </div>
 
 <!--QRLIB-->
+<!--PDFLIBS-->
 <!--CORE-->
 <script>
 (() => {
@@ -360,12 +369,15 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
           <div class="t-mid">
             ${motifSVG(t.bits, ink)}
             <div><span class="t-codelbl">Code</span><span class="t-code">${t.code}</span></div>
+            <div class="t-qr">${qrSVG(`CC1:${c.serie}:${pad(num)}:${t.code}`)}</div>
+          </div>
+          <div class="t-low">
+            <div class="t-hint">Pour récupérer votre téléphone, présentez ce jeton et donnez votre code de retrait.</div>
+            <div class="cachet">cachet sec<br>signature</div>
           </div>
           <div class="t-fill">Déposé le <span></span> à <span></span></div>
           <div class="t-rule">Jeton à rendre pour récupérer le téléphone · valable ${esc(c.validity)}</div>
         </div>
-        <div class="t-qr">${qrSVG(`CC1:${c.serie}:${pad(num)}:${t.code}`)}</div>
-        <div class="cachet">cachet sec<br>signature</div>
       </div>
       <div class="stub">
         ${guillocheSVG(117, 227, ink, t.seed2, t.seed, micro, "ms" + uid)}
@@ -426,6 +438,31 @@ header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
   // Bouton Imprimer : seulement quand le fichier est ouvert directement dans un navigateur
   let standalone = false; try { standalone = window.self === window.top; } catch (e) {}
   if (standalone) document.documentElement.classList.add("standalone");
+  // Export PDF : chaque planche est rendue en image haute définition (≈ 300 dpi) puis placée sur une page A4
+  $("btn-pdf").addEventListener("click", async () => {
+    const btn = $("btn-pdf"), c = cfg();
+    if (!window.jspdf || !window.html2canvas) return;
+    btn.disabled = true; const label = btn.textContent;
+    try {
+      document.querySelector('[data-tab="planche"]').click();
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      const sheets = [...document.querySelectorAll("#sheets .sheet")];
+      const pdf = new window.jspdf.jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
+      for (let i = 0; i < sheets.length; i++) {
+        btn.textContent = `PDF : page ${i + 1} / ${sheets.length}…`;
+        await new Promise((r) => setTimeout(r, 30));
+        const canvas = await window.html2canvas(sheets[i], { scale: 3, backgroundColor: "#ffffff", logging: false, useCORS: false });
+        if (i) pdf.addPage("a4", "portrait");
+        pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, 210, 297, undefined, "FAST");
+      }
+      const first = parseInt(c.start, 10), last = Math.min(9999, first + c.count - 1);
+      const slug = c.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+      pdf.save(`jetons-${slug}-serie-${c.serie}-${pad(first)}-${pad(last)}.pdf`);
+    } catch (e) {
+      alert("Le PDF n'a pas pu être créé. Utilisez le bouton Imprimer puis « Enregistrer au format PDF ».");
+    } finally { btn.disabled = false; btn.textContent = label; }
+  });
+
   $("btn-print").addEventListener("click", () => {
     document.querySelector('[data-tab="planche"]').click(); window.print();
   });

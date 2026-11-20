@@ -53,7 +53,7 @@ window.CabineCore = (() => {
         if (x < 2) rects += `<rect x="${4 - x}" y="${y}" width="1" height="1"/>`;
       }
     }
-    return `<svg class="motif" viewBox="0 0 5 5" shape-rendering="crispEdges" aria-label="Motif de contrôle"><g fill="${ink}">${rects}</g></svg>`;
+    return `<svg class="motif" viewBox="-0.7 -0.7 6.4 6.4" shape-rendering="crispEdges" aria-label="Motif de contrôle"><rect x="-0.65" y="-0.65" width="6.3" height="6.3" fill="#fff" stroke="${ink}" stroke-width=".1"/><g fill="${ink}">${rects}</g></svg>`;
   }
   return { sha256, ALPHA, SERIES, pad, esc, tokenData, motifSVG };
 })();

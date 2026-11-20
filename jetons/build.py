@@ -23,6 +23,7 @@ def build(src, out):
     html = (SRC / src).read_text(encoding="utf-8")
     html = html.replace("<!--CORE-->", script("core.js"))
     html = html.replace("<!--QRLIB-->", script("vendor/qrcode-generator-1.4.4.js"))
+    html = html.replace("<!--PDFLIBS-->", script("vendor/html2canvas-1.4.1.min.js") + "\n" + script("vendor/jspdf-2.5.1.umd.min.js"))
     html = html.replace("<!--JSQR-->", script("vendor/jsQR-1.4.0.js"))
     (ROOT / out).write_text(HEAD + html, encoding="utf-8")
     print(f"{out}: {len(HEAD + html) // 1024} Ko")

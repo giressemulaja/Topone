@@ -4,8 +4,8 @@ Deux fichiers autonomes, utilisables **sans internet** :
 
 | Fichier | Où l'ouvrir | À quoi il sert |
 |---|---|---|
-| `jetons-cabine.html` | Ordinateur (Chrome, Edge, Firefox) | Générer et imprimer les planches de jetons (8 par feuille A4), chacun avec numéro, code, motif, QR code et talon. |
-| `registre-cabine.html` | Téléphone du responsable (Chrome sur Android conseillé) | Scanner les jetons au dépôt et au retrait, enregistrer le téléphone et le code de retrait du client, marquer les jetons « rendus ». |
+| `jetons-cabine.html` | Ordinateur (Chrome, Edge, Firefox) | Générer les planches de jetons (8 par feuille A4), chacun avec numéro, code, motif, QR code et talon, puis les télécharger en PDF ou les imprimer. |
+| `registre-cabine.html` | Téléphone du responsable (Chrome sur Android conseillé) | Scanner les jetons au dépôt et au retrait, photographier le téléphone (photo réaffichée au retrait), enregistrer le code de retrait du client, marquer les jetons « rendus ». |
 
 Les deux outils doivent utiliser **le même mot secret**.
 
@@ -20,7 +20,7 @@ Les deux outils doivent utiliser **le même mot secret**.
 
 ## Important
 
-- Le registre est stocké dans le navigateur du téléphone. Faites **une sauvegarde chaque soir** (onglet Réglages) et gardez-la ailleurs (clé USB, ordinateur).
+- Le registre et les photos sont stockés dans le navigateur du téléphone (photos des téléphones rendus effacées après 30 jours). Faites **une sauvegarde chaque soir** (onglet Réglages) et gardez-la ailleurs (clé USB, ordinateur).
 - Avant la mise en service, faites un essai : enregistrez un dépôt test, fermez le navigateur, rouvrez le fichier et vérifiez que le dépôt est toujours là.
 
 ## Modifier les outils
@@ -31,4 +31,4 @@ Les sources sont dans `src/`. Après modification, reconstruisez les deux fichie
 python3 build.py
 ```
 
-Bibliothèques intégrées : qrcode-generator 1.4.4 (MIT, Kazuhiko Arase) et jsQR 1.4.0 (Apache 2.0, voir `src/vendor/jsQR-LICENSE.txt`).
+Bibliothèques intégrées (licences dans `src/vendor/`) : qrcode-generator 1.4.4 (MIT), jsQR 1.4.0 (Apache 2.0), html2canvas 1.4.1 (MIT), jsPDF 2.5.1 (MIT).
