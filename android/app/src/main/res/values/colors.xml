@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="gm_maroon">#5A0A0A</color>
+    <color name="gm_maroon_btn">#7A1414</color>
+    <color name="gm_orange">#E8452A</color>
+    <color name="gm_bg">#F7F5F4</color>
+    <color name="gm_panel">#FFFFFF</color>
+    <color name="gm_fg">#1E1514</color>
+    <color name="gm_muted">#6E5F5C</color>
+    <color name="gm_line">#E2D8D5</color>
+    <color name="gm_bad">#B3261E</color>
+</resources>

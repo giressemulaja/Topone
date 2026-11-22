@@ -1,0 +1,521 @@
+<title>Registre Cabine de Charge</title>
+<meta name="author" content="Giresse Mulaja">
+<!-- © 2026 GM Corporate (Giresse Mulaja). Tous droits réservés. Développeur : Giresse Mulaja, tél. +243 810 000 421, giressemulaja8@gmail.com -->
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Application téléphone : une colonne, barre d'onglets en bas, gros boutons utilisables d'une main. */
+:root {
+  --bg: #eef1f0; --panel: #ffffff; --fg: #17211f; --muted: #5b6b67; --line: #cfd8d5;
+  --accent: #7a1414; --accent-fg: #ffffff;
+  --ok: #146c36; --ok-bg: #dff3e6; --warn: #8a5300; --warn-bg: #fdf0d8; --bad: #a3221b; --bad-bg: #fbe4e2;
+  --f-body: "Segoe UI", Roboto, system-ui, -apple-system, sans-serif;
+  --f-mono: ui-monospace, "Roboto Mono", "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111816; --panel: #1a2421; --fg: #e4ece9; --muted: #98aaa5; --line: #2e3d39; --accent: #ff7b55; --accent-fg: #1d0703;
+    --ok: #7ddc9f; --ok-bg: #163322; --warn: #f3c068; --warn-bg: #3a2c12; --bad: #ff8f86; --bad-bg: #3d1a18; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111816; --panel: #1a2421; --fg: #e4ece9; --muted: #98aaa5; --line: #2e3d39; --accent: #ff7b55; --accent-fg: #1d0703;
+  --ok: #7ddc9f; --ok-bg: #163322; --warn: #f3c068; --warn-bg: #3a2c12; --bad: #ff8f86; --bad-bg: #3d1a18; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.45 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 14px calc(84px + env(safe-area-inset-bottom, 0px));
+}
+main { max-width: 560px; margin: 0 auto; display: grid; gap: 14px; }
+h1 { font-size: 1.25rem; margin: 0; }
+h2 { font-size: 1.1rem; margin: 0; }
+.top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.top small { color: var(--muted); }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
+.field { display: grid; gap: 4px; }
+.field label { font-size: .75rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+input, select { font: 600 1.05rem var(--f-body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 11px 12px; width: 100%; }
+input.mono { font-family: var(--f-mono); letter-spacing: .14em; text-transform: uppercase; }
+input.pin { font-family: var(--f-mono); font-size: 1.6rem; letter-spacing: .5em; text-align: center; }
+.row { display: grid; grid-template-columns: 76px 1fr 1.2fr; gap: 8px; }
+.btn { font: 700 1rem var(--f-body); border-radius: 10px; padding: 14px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-fg); cursor: pointer; width: 100%; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn.danger { background: var(--bad); border-color: var(--bad); color: var(--panel); }
+.btn:disabled { opacity: .45; cursor: default; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, nav button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.or { text-align: center; color: var(--muted); font-size: .85rem; }
+.status { border-radius: 12px; padding: 16px; display: grid; gap: 6px; }
+.status b { font-size: 1.25rem; display: block; }
+.status p { margin: 0; color: var(--fg); }
+.status.ok { background: var(--ok-bg); color: var(--ok); }
+.status.warn { background: var(--warn-bg); color: var(--warn); }
+.status.bad { background: var(--bad-bg); color: var(--bad); }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 0; }
+.facts dt { color: var(--muted); font-size: .85rem; }
+.facts dd { margin: 0; font-weight: 600; }
+.motif { width: 60px; height: 60px; display: block; flex: none; }
+.tokenline { display: flex; align-items: center; gap: 12px; }
+.tokenline .num { font: 800 1.6rem var(--f-mono); }
+.list { display: grid; gap: 8px; }
+.item { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; text-align: left; font: inherit; color: inherit; cursor: pointer; width: 100%; }
+.item .n { font: 800 1.05rem var(--f-mono); }
+.item small { color: var(--muted); display: block; }
+.chip { font-size: .72rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--ok-bg); color: var(--ok); white-space: nowrap; }
+.chip.old { background: var(--warn-bg); color: var(--warn); }
+.chip.done { background: var(--bg); color: var(--muted); }
+.muted { color: var(--muted); font-size: .9rem; margin: 0; }
+.empty { text-align: center; color: var(--muted); padding: 22px 8px; }
+nav.tabs {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: var(--panel); border-top: 1px solid var(--line);
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-left, 0px));
+}
+nav.tabs button { background: none; border: 0; color: var(--muted); font: 600 .78rem var(--f-body); padding: 6px 2px; display: grid; justify-items: center; gap: 2px; cursor: pointer; border-radius: 8px; }
+nav.tabs button svg { width: 24px; height: 24px; }
+nav.tabs button[aria-current="page"] { color: var(--accent); background: var(--bg); }
+.scanner { position: fixed; inset: 0; z-index: 20; background: #000; display: grid; grid-template-rows: 1fr auto; }
+.scanner video { width: 100%; height: 100%; object-fit: cover; }
+.scanner .frame { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
+.scanner .frame div { width: min(64vw, 280px); aspect-ratio: 1; border: 3px solid #fff; border-radius: 16px; box-shadow: 0 0 0 100vmax rgba(0,0,0,.45); }
+.scanner .bar { padding: 14px max(16px, env(safe-area-inset-left, 0px)) calc(14px + env(safe-area-inset-bottom, 0px)); display: grid; gap: 8px; background: #000; color: #fff; text-align: center; }
+.scanner .bar .btn { background: #fff; color: #000; border-color: #fff; }
+.photo-pick { display: grid; place-items: center; gap: 6px; min-height: 150px; border: 2px dashed var(--line); border-radius: 10px; background: var(--bg); color: var(--accent); font-weight: 700; cursor: pointer; text-align: center; padding: 12px; overflow: hidden; }
+.field label.photo-pick { text-transform: none; letter-spacing: normal; font-size: 1rem; color: var(--accent); }
+.photo-pick img { width: 100%; max-height: 260px; object-fit: contain; border-radius: 6px; }
+.photo-pick svg { width: 34px; height: 34px; }
+.phone-photo { width: 100%; max-height: 340px; object-fit: contain; border-radius: 10px; background: #000; display: block; }
+.photo-cap { font-size: .8rem; color: var(--muted); margin: 4px 0 0; }
+.brand { display: inline-flex; align-items: center; gap: 8px; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.brand img, .brandline img { background: #fff; border-radius: 6px; padding: 2px; }
+.brandline { display: inline-flex; align-items: center; gap: 6px; }
+.top .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.top .who img { background: #fff; border-radius: 8px; padding: 3px; flex: none; }
+.top .who span { display: block; font-size: .7rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.credits { text-align: center; color: var(--muted); font-size: .8rem; line-height: 1.5; padding-top: 8px; border-top: 1px solid var(--line); }
+.credits p { margin: 0; }
+.credits strong { color: var(--fg); }
+.credits .sel { user-select: all; white-space: nowrap; }
+.toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(92px + env(safe-area-inset-bottom, 0px)); background: var(--fg); color: var(--panel); padding: 10px 16px; border-radius: 99px; font-weight: 600; z-index: 30; max-width: calc(100% - 32px); }
+</style>
+
+<main>
+  <div class="top"><div class="who"><img src="%%GM_LOGO%%" alt="Logo GM Corporate" width="36" height="36"><div><span>GM Corporate</span><h1 id="title">Registre</h1></div></div><small id="count"></small></div>
+
+  <!-- ===== Première ouverture ===== -->
+  <section data-view="setup" hidden>
+    <form class="card" id="setup-form" autocomplete="off">
+      <h2>Configurer la cabine</h2>
+      <p class="muted">Utilisez <b>exactement</b> le même mot secret que dans l'outil d'impression des jetons. Sinon, tous les jetons seront déclarés faux.</p>
+      <div class="field"><label for="s-name">Nom de la cabine</label><input id="s-name" required maxlength="28" value="Recharge Express"></div>
+      <div class="field"><label for="s-secret">Mot secret</label><input id="s-secret" required maxlength="40" autocapitalize="off" spellcheck="false"></div>
+      <button class="btn" type="submit">Commencer</button>
+    </form>
+  </section>
+
+  <!-- ===== Dépôt / Retrait (même écran de saisie) ===== -->
+  <section data-view="scan" hidden>
+    <div class="card">
+      <h2 id="scan-title">Dépôt d'un téléphone</h2>
+      <p class="muted" id="scan-help"></p>
+      <button class="btn" type="button" id="btn-scan">Scanner le QR du jeton</button>
+      <div class="or">ou tapez ce qui est imprimé sur le jeton</div>
+      <form id="manual" autocomplete="off">
+        <div class="row">
+          <div class="field"><label for="m-serie">Série</label><select id="m-serie"></select></div>
+          <div class="field"><label for="m-num">N°</label><input id="m-num" type="number" inputmode="numeric" min="1" max="9999"></div>
+          <div class="field"><label for="m-code">Code</label><input id="m-code" class="mono" maxlength="5" autocapitalize="characters" spellcheck="false"></div>
+        </div>
+        <button class="btn ghost" type="submit" style="margin-top:10px">Contrôler ce jeton</button>
+      </form>
+    </div>
+    <div id="scan-result" aria-live="polite"></div>
+  </section>
+
+  <!-- ===== En cours ===== -->
+  <section data-view="list" hidden>
+    <div class="card">
+      <h2>Téléphones en dépôt</h2>
+      <p class="muted">Touchez une ligne pour voir le détail ou rendre un téléphone dont le jeton est perdu.</p>
+    </div>
+    <div class="list" id="list"></div>
+    <details class="card" id="hist-wrap"><summary><b>Rendus récemment</b></summary><div class="list" id="hist"></div></details>
+  </section>
+
+  <!-- ===== Réglages ===== -->
+  <section data-view="settings" hidden>
+    <div class="card">
+      <h2>Sauvegarde</h2>
+      <p class="muted">Le registre et les photos sont enregistrés dans ce navigateur, sur ce téléphone uniquement. Faites une sauvegarde chaque soir : si le navigateur est vidé ou le téléphone perdu, c'est elle qui permet de tout retrouver. Les photos des téléphones rendus depuis plus de 30 jours sont effacées automatiquement.</p>
+      <p class="muted" id="last-backup"></p>
+      <button class="btn" type="button" id="btn-export">Télécharger une sauvegarde</button>
+      <label class="btn ghost" for="f-import" style="text-align:center">Restaurer une sauvegarde</label>
+      <input type="file" id="f-import" accept="application/json,.json" hidden>
+    </div>
+    <div class="card">
+      <h2>Cabine</h2>
+      <dl class="facts"><dt>Nom</dt><dd id="i-name"></dd><dt>Mot secret</dt><dd id="i-secret"></dd></dl>
+      <button class="btn ghost" type="button" id="btn-reveal">Afficher le mot secret</button>
+      <button class="btn ghost" type="button" id="btn-reconf">Changer le nom ou le mot secret</button>
+    </div>
+    <div class="card">
+      <h2>Session</h2>
+      <p class="muted">L'application se verrouille seule après 15 minutes sans activité. Déconnectez-vous si vous prêtez le téléphone.</p>
+      <button class="btn danger" type="button" id="btn-logout">Se déconnecter</button>
+    </div>
+  </section>
+  <footer class="credits">
+    <p class="brandline"><img src="%%GM_LOGO%%" alt="" width="20" height="20"><strong>© 2026 GM Corporate.</strong> Tous droits réservés.</p>
+    <p>Développeur : Giresse Mulaja · Tél. <span class="sel">+243 810 000 421</span> · <span class="sel">giressemulaja8@gmail.com</span></p>
+  </footer>
+</main>
+
+<nav class="tabs" id="tabs" hidden>
+  <button type="button" data-go="depot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M12 7v6M9 10l3 3 3-3"/></svg>Dépôt</button>
+  <button type="button" data-go="retrait"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M12 13V7M9 10l3-3 3 3"/></svg>Retrait</button>
+  <button type="button" data-go="list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>En cours</button>
+  <button type="button" data-go="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="2.5" fill="var(--panel)"/><circle cx="15" cy="17" r="2.5" fill="var(--panel)"/></svg>Réglages</button>
+</nav>
+
+<!--JSQR-->
+<!--CORE-->
+<!--AUTH-->
+<script>
+(() => {
+  const { SERIES, pad, esc, tokenData, motifSVG, sha256 } = window.CabineCore;
+  const $ = (id) => document.getElementById(id);
+  const KEY = "cabine-registre-v1";
+  const hex = (b) => Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
+  const fmt = (t) => new Date(t).toLocaleString("fr-FR", { weekday: "short", day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  const idOf = (serie, num) => `${serie}-${pad(num)}`;
+
+  // ---------- Données ----------
+  let db = { name: "", secret: "", tokens: {}, lastBackup: 0 };
+  try { const raw = localStorage.getItem(KEY); if (raw) db = Object.assign(db, JSON.parse(raw)); } catch (e) {}
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(db)); return true; }
+    catch (e) { toast("Enregistrement impossible : faites une sauvegarde tout de suite."); return false; }
+  }
+  const pinHash = (serie, num, pin) => hex(sha256(`${db.secret}|pin|${serie}|${num}|${pin}`));
+
+  // ---------- Photos (IndexedDB : plus de place que localStorage) ----------
+  let idbP = null;
+  function idb() {
+    if (!idbP) idbP = new Promise((res, rej) => {
+      const r = indexedDB.open("cabine-photos", 1);
+      r.onupgradeneeded = () => r.result.createObjectStore("photos");
+      r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+    });
+    return idbP;
+  }
+  async function photoOp(mode, fn) {
+    const d = await idb();
+    return new Promise((res, rej) => {
+      const tx = d.transaction("photos", mode); const req = fn(tx.objectStore("photos"));
+      tx.oncomplete = () => res(req && req.result); tx.onerror = () => rej(tx.error); tx.onabort = () => rej(tx.error);
+    });
+  }
+  const photoPut = (id, data) => photoOp("readwrite", (s) => s.put(data, id));
+  const photoGet = (id) => photoOp("readonly", (s) => s.get(id)).catch(() => null);
+  const photoDel = (id) => photoOp("readwrite", (s) => s.delete(id)).catch(() => {});
+  const photoAll = () => photoOp("readonly", (s) => s.getAllKeys()).then(async (keys) => {
+    const out = {}; for (const k of keys || []) out[k] = await photoGet(k); return out;
+  });
+  // Réduit la photo (900 px max, JPEG) pour économiser la place
+  function shrink(file) {
+    return new Promise((res, rej) => {
+      const url = URL.createObjectURL(file), img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, 900 / Math.max(img.width, img.height));
+        const c = document.createElement("canvas"); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(url);
+        res(c.toDataURL("image/jpeg", 0.75));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error("image")); };
+      img.src = url;
+    });
+  }
+  try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (e) {}
+  // Purge des photos de téléphones rendus depuis plus de 30 jours
+  (async () => {
+    const limit = Date.now() - 30 * 24 * 3600 * 1000;
+    for (const t of Object.values(db.tokens)) if (t.photo && t.returnedAt && t.returnedAt < limit) { await photoDel(t.id); t.photo = false; }
+    save();
+  })().catch(() => {});
+
+  // ---------- Navigation ----------
+  let mode = "depot";
+  function show(view) {
+    document.querySelectorAll("[data-view]").forEach((s) => { s.hidden = s.dataset.view !== view; });
+  }
+  function go(where) {
+    if (!db.secret) { show("setup"); $("tabs").hidden = true; return; }
+    $("tabs").hidden = false;
+    document.querySelectorAll("#tabs button").forEach((b) => b.toggleAttribute("aria-current", b.dataset.go === where));
+    document.querySelector("#tabs button[data-go='" + where + "']").setAttribute("aria-current", "page");
+    if (where === "depot" || where === "retrait") {
+      mode = where;
+      $("scan-title").textContent = where === "depot" ? "Dépôt d'un téléphone" : "Retrait d'un téléphone";
+      $("scan-help").textContent = where === "depot"
+        ? "Prenez un jeton neuf et contrôlez-le avant de l'enregistrer."
+        : "Contrôlez le jeton que le client vous présente.";
+      $("scan-result").innerHTML = ""; $("manual").reset(); $("m-serie").value = lastSerie;
+      show("scan");
+    } else if (where === "list") { renderList(); show("list"); }
+    else { renderSettings(); show("settings"); }
+    window.scrollTo(0, 0);
+  }
+  document.querySelectorAll("#tabs button").forEach((b) => b.addEventListener("click", () => go(b.dataset.go)));
+
+  function header() {
+    $("title").textContent = db.name || "Registre";
+    const n = Object.values(db.tokens).filter((t) => !t.returnedAt).length;
+    $("count").textContent = db.secret ? `${n} téléphone${n > 1 ? "s" : ""} en dépôt` : "";
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    let t = document.querySelector(".toast"); if (!t) { t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+    t.textContent = msg; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.remove(), 3200);
+  }
+
+  // ---------- Configuration ----------
+  $("setup-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const secret = $("s-secret").value;
+    if (db.secret && secret !== db.secret && Object.keys(db.tokens).length) {
+      if (!$("setup-form").dataset.confirm) {
+        $("setup-form").dataset.confirm = "1";
+        toast("Attention : les jetons déjà en dépôt ne seront plus reconnus. Appuyez encore pour confirmer.");
+        return;
+      }
+    }
+    db.name = $("s-name").value.trim(); db.secret = secret; save(); header(); go("depot");
+  });
+
+  // ---------- Contrôle d'un jeton ----------
+  const SEL = $("m-serie"); SERIES.forEach((s) => SEL.add(new Option(s, s)));
+  let lastSerie = "A";
+  $("manual").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const num = parseInt($("m-num").value, 10), code = $("m-code").value.trim().toUpperCase();
+    if (!num || code.length !== 5) { result("warn", "Saisie incomplète", "Entrez le numéro et les 5 caractères du code."); return; }
+    check(SEL.value, num, code);
+  });
+
+  function parseQR(text) {
+    const m = /^CC1[:|]([A-Z])[:|](\d{1,4})[:|]([A-Z0-9]{5})$/.exec(String(text).trim());
+    return m ? { serie: m[1], num: parseInt(m[2], 10), code: m[3] } : null;
+  }
+
+  function result(kind, title, text, extra = "") {
+    $("scan-result").innerHTML = `<div class="status ${kind}"><b>${title}</b><p>${text}</p>${extra}</div>`;
+    $("scan-result").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function check(serie, num, code) {
+    lastSerie = serie;
+    const id = idOf(serie, num);
+    const t = tokenData(db.secret, serie, num);
+    if (t.code !== code) {
+      result("bad", "Jeton faux", `Le code ${esc(code)} ne correspond pas au jeton ${id}. Ce jeton n'a pas été fabriqué par la cabine (ou la saisie est fausse : vérifiez-la).`);
+      return;
+    }
+    const rec = db.tokens[id];
+    const head = `<div class="tokenline">${motifSVG(t.bits, "#111")}<span class="num">${id}</span></div>`;
+    if (mode === "depot") {
+      if (rec && !rec.returnedAt) return result("warn", "Déjà en dépôt", `Ce jeton est déjà utilisé pour un téléphone déposé ${fmt(rec.depositAt)}. Prenez un autre jeton.`, head);
+      if (rec && rec.returnedAt) return result("bad", "Numéro déjà utilisé", `Le jeton ${id} a déjà servi (dépôt ${fmt(rec.depositAt)}, rendu ${fmt(rec.returnedAt)}). Un numéro ne sert qu'une seule fois : déchirez ce jeton et prenez-en un neuf.`, head);
+      depositForm(serie, num, code, head);
+    } else {
+      if (!rec) return result("bad", "Jamais enregistré", "Ce jeton est authentique mais aucun téléphone n'a été déposé avec lui. Ne rendez rien : il a pu être volé dans la réserve de jetons.", head);
+      if (rec.returnedAt) return result("bad", "Déjà rendu : copie probable", `Le téléphone de ce jeton a été rendu le ${fmt(rec.returnedAt)}. Ce jeton est une copie ou il a déjà servi. Ne rendez rien.`, head);
+      returnForm(rec, head);
+    }
+  }
+
+  // ---------- Dépôt ----------
+  function depositForm(serie, num, code, head) {
+    result("ok", "Jeton authentique et libre", "Remplissez la fiche avec le client.", `${head}
+      <form id="dep" class="card" style="margin-top:8px" autocomplete="off">
+        <div class="field"><label for="d-photo">Photo du téléphone</label>
+          <label class="photo-pick" for="d-photo" id="d-photo-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Prendre la photo du téléphone</label>
+          <input id="d-photo" type="file" accept="image/*" capture="environment" hidden>
+          <span class="muted">Photographiez l'avant et l'arrière visibles si possible (coque, fissures, autocollants).</span></div>
+        <div class="field"><label for="d-model">Téléphone (marque, modèle, couleur)</label><input id="d-model" required placeholder="ex. Tecno Spark 10, bleu"></div>
+        <div class="field"><label for="d-client">Prénom du client</label><input id="d-client" placeholder="facultatif"></div>
+        <div class="field"><label for="d-pin">Code de retrait choisi par le client (4 chiffres)</label>
+          <input id="d-pin" class="pin" required inputmode="numeric" pattern="[0-9]{4}" maxlength="4" placeholder="••••">
+          <span class="muted">Par exemple les 4 derniers chiffres de son numéro. Ne l'écrivez pas sur le jeton.</span></div>
+        <button class="btn" type="submit">Enregistrer le dépôt</button>
+      </form>`);
+    let photo = null;
+    $("d-photo").addEventListener("change", async (e) => {
+      const f = e.target.files[0]; if (!f) return;
+      try {
+        photo = await shrink(f);
+        $("d-photo-box").innerHTML = `<img src="${photo}" alt="Photo du téléphone déposé"><span>Reprendre la photo</span>`;
+      } catch (err) { toast("Photo illisible : reprenez-la."); }
+    });
+    $("dep").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!photo) { toast("Prenez d'abord la photo du téléphone."); $("d-photo-box").scrollIntoView({ block: "center" }); return; }
+      const pin = $("d-pin").value.trim();
+      if (!/^\d{4}$/.test(pin)) { toast("Le code de retrait doit faire 4 chiffres."); return; }
+      const id = idOf(serie, num);
+      try { await photoPut(id, photo); }
+      catch (err) { toast("Photo non enregistrée : mémoire pleine ? Faites une sauvegarde puis réessayez."); return; }
+      db.tokens[id] = { id, serie, num, code, model: $("d-model").value.trim(), client: $("d-client").value.trim(), pin: pinHash(serie, num, pin), photo: true, depositAt: Date.now(), returnedAt: 0, how: "", tries: 0 };
+      if (save()) {
+        header();
+        result("ok", `Dépôt ${id} enregistré`, "Notez l'heure sur le jeton et le talon, collez le talon sur le téléphone, puis donnez le jeton au client.",
+          `${head}<img class="phone-photo" src="${photo}" alt="Photo du téléphone ${id}">`);
+      }
+    });
+  }
+
+  // ---------- Retrait ----------
+  function returnForm(rec, head) {
+    const facts = `<dl class="facts"><dt>Déposé</dt><dd>${fmt(rec.depositAt)}</dd><dt>Téléphone</dt><dd>${esc(rec.model)}</dd>${rec.client ? `<dt>Client</dt><dd>${esc(rec.client)}</dd>` : ""}</dl>`;
+    result("ok", "Jeton authentique, téléphone en dépôt", "Retrouvez le téléphone de la photo, puis demandez au client son code de retrait.", `${head}
+      <div id="r-photo"><p class="photo-cap">Chargement de la photo…</p></div>${facts}
+      <form id="ret" class="card" style="margin-top:8px" autocomplete="off">
+        <div class="field"><label for="r-pin">Code de retrait dit par le client</label>
+          <input id="r-pin" class="pin" required inputmode="numeric" maxlength="4" placeholder="••••"></div>
+        <button class="btn" type="submit">Contrôler le code</button>
+      </form><div id="ret-out"></div>`);
+    photoGet(rec.id).then((data) => {
+      const box = $("r-photo"); if (!box) return;
+      box.innerHTML = data
+        ? `<img class="phone-photo" src="${data}" alt="Photo du téléphone ${rec.id} prise au dépôt"><p class="photo-cap">Photo prise au dépôt, ${fmt(rec.depositAt)}. Le téléphone doit être le même.</p>`
+        : `<p class="photo-cap">Pas de photo pour ce dépôt.</p>`;
+    });
+    $("ret").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const ok = pinHash(rec.serie, rec.num, $("r-pin").value.trim()) === rec.pin;
+      if (ok) { handover(rec, "jeton + code de retrait"); return; }
+      rec.tries = (rec.tries || 0) + 1; save();
+      $("r-pin").value = "";
+      $("ret-out").innerHTML = `<div class="status bad" style="margin-top:8px"><b>Code de retrait faux (${rec.tries} essai${rec.tries > 1 ? "s" : ""})</b>
+        <p>${rec.tries >= 3 ? "Trop d'erreurs. " : ""}Seul le vrai propriétaire peut déverrouiller le téléphone. Demandez-lui de le faire devant vous, sans le lâcher.</p>
+        <button class="btn ghost" type="button" id="btn-unlock" style="margin-top:6px">Il a déverrouillé le téléphone devant moi</button></div>`;
+      $("btn-unlock").onclick = () => handover(rec, "déverrouillage devant le responsable");
+    });
+  }
+
+  function handover(rec, how) {
+    rec.returnedAt = Date.now(); rec.how = how;
+    if (!save()) return;
+    header();
+    $("scan-result").innerHTML = `<div class="status ok"><b>Rendez le téléphone ${rec.id}</b>
+      <p>${esc(rec.model)}. Le jeton est maintenant marqué « rendu » : gardez-le, il ne pourra plus jamais servir.</p><div id="h-photo"></div></div>`;
+    photoGet(rec.id).then((d) => { if (d && $("h-photo")) $("h-photo").innerHTML = `<img class="phone-photo" src="${d}" alt="Photo du téléphone ${rec.id}">`; });
+  }
+
+  // ---------- Liste ----------
+  function renderList() {
+    const all = Object.values(db.tokens);
+    const open = all.filter((t) => !t.returnedAt).sort((a, b) => a.depositAt - b.depositAt);
+    const done = all.filter((t) => t.returnedAt).sort((a, b) => b.returnedAt - a.returnedAt).slice(0, 30);
+    const day = 24 * 3600 * 1000;
+    $("list").innerHTML = open.length ? open.map((t) => `<button class="item" type="button" data-id="${t.id}">
+      <span class="n">${t.id}</span><span>${esc(t.model)}<small>${t.client ? esc(t.client) + " · " : ""}${fmt(t.depositAt)}</small></span>
+      <span class="chip ${Date.now() - t.depositAt > day ? "old" : ""}">${Date.now() - t.depositAt > day ? "+24 h" : "en dépôt"}</span></button>`).join("")
+      : `<div class="empty">Aucun téléphone en dépôt.<br>Les dépôts enregistrés apparaîtront ici.</div>`;
+    $("hist").innerHTML = done.length ? done.map((t) => `<div class="item" style="cursor:default"><span class="n">${t.id}</span>
+      <span>${esc(t.model)}<small>Rendu ${fmt(t.returnedAt)} · ${esc(t.how)}</small></span><span class="chip done">rendu</span></div>`).join("")
+      : `<p class="muted">Aucun retrait pour l'instant.</p>`;
+    $("list").querySelectorAll("[data-id]").forEach((b) => b.onclick = () => lostToken(db.tokens[b.dataset.id]));
+  }
+
+  function lostToken(rec) {
+    mode = "retrait";
+    document.querySelectorAll("#tabs button").forEach((b) => b.toggleAttribute("aria-current", false));
+    show("scan"); $("scan-title").textContent = "Retrait sans jeton"; $("scan-help").textContent = "Le client a perdu son jeton : contrôlez le code de retrait ou faites déverrouiller le téléphone. Notez aussi sa pièce d'identité.";
+    const t = tokenData(db.secret, rec.serie, rec.num);
+    returnForm(rec, `<div class="tokenline">${motifSVG(t.bits, "#111")}<span class="num">${rec.id}</span></div>`);
+  }
+
+  // ---------- Réglages & sauvegarde ----------
+  function renderSettings() {
+    $("i-name").textContent = db.name; $("i-secret").textContent = "••••••••";
+    $("last-backup").textContent = db.lastBackup ? `Dernière sauvegarde : ${fmt(db.lastBackup)}` : "Aucune sauvegarde faite pour l'instant.";
+  }
+  $("btn-reveal").onclick = () => { $("i-secret").textContent = db.secret; };
+  $("btn-reconf").onclick = () => { $("s-name").value = db.name; $("s-secret").value = db.secret; delete $("setup-form").dataset.confirm; show("setup"); };
+  $("btn-export").onclick = async () => {
+    db.lastBackup = Date.now(); save();
+    let photos = {}; try { photos = await photoAll(); } catch (e) {}
+    const blob = new Blob([JSON.stringify(Object.assign({}, db, { photos }))], { type: "application/json" });
+    await window.CabineCore.saveFile(`registre-cabine-${new Date().toISOString().slice(0, 10)}.json`, "application/json", blob);
+    renderSettings(); toast("Sauvegarde téléchargée.");
+  };
+  $("f-import").onchange = async (e) => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const data = JSON.parse(await f.text());
+      if (!data || typeof data.tokens !== "object" || !data.secret) throw new Error();
+      const photos = data.photos || {}; delete data.photos;
+      db = Object.assign({ name: "", secret: "", tokens: {}, lastBackup: 0 }, data); save(); header(); renderSettings();
+      for (const [k, v] of Object.entries(photos)) { try { await photoPut(k, v); } catch (e) {} }
+      toast(`Sauvegarde restaurée : ${Object.keys(db.tokens).length} jetons.`);
+    } catch (err) { toast("Ce fichier n'est pas une sauvegarde du registre."); }
+    e.target.value = "";
+  };
+
+  // ---------- Scanner (caméra) ----------
+  let stream = null, raf = 0;
+  $("btn-scan").onclick = startScan;
+  async function startScan() {
+    if (!navigator.mediaDevices?.getUserMedia) { toast("Caméra indisponible ici : tapez le numéro et le code."); return; }
+    try { stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false }); }
+    catch (e) { toast("Accès à la caméra refusé : tapez le numéro et le code."); return; }
+    const box = document.createElement("div"); box.className = "scanner";
+    box.innerHTML = `<video playsinline muted></video><div class="frame"><div></div></div>
+      <div class="bar"><span>Placez le QR du jeton dans le cadre</span><button class="btn" type="button">Annuler</button></div>`;
+    document.body.appendChild(box);
+    const video = box.querySelector("video"); video.srcObject = stream; await video.play().catch(() => {});
+    box.querySelector("button").onclick = stopScan;
+    const native = "BarcodeDetector" in window ? new BarcodeDetector({ formats: ["qr_code"] }) : null;
+    const cv = document.createElement("canvas"), ctx = cv.getContext("2d", { willReadFrequently: true });
+    let busy = false;
+    const tick = async () => {
+      if (!stream) return;
+      if (!busy && video.readyState >= 2) {
+        busy = true;
+        let text = null;
+        try {
+          if (native) { const r = await native.detect(video); if (r[0]) text = r[0].rawValue; }
+          else {
+            const w = 480, h = Math.round(video.videoHeight * w / video.videoWidth) || 480;
+            cv.width = w; cv.height = h; ctx.drawImage(video, 0, 0, w, h);
+            const img = ctx.getImageData(0, 0, w, h); const r = jsQR(img.data, w, h, { inversionAttempts: "dontInvert" }); if (r) text = r.data;
+          }
+        } catch (e) {}
+        busy = false;
+        if (text) {
+          const p = parseQR(text);
+          stopScan();
+          if (navigator.vibrate) navigator.vibrate(80);
+          if (p) { SEL.value = p.serie; $("m-num").value = p.num; $("m-code").value = p.code; check(p.serie, p.num, p.code); }
+          else result("bad", "QR inconnu", "Ce QR code ne vient pas d'un jeton de la cabine.");
+          return;
+        }
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+  }
+  function stopScan() {
+    cancelAnimationFrame(raf);
+    if (stream) stream.getTracks().forEach((t) => t.stop()); stream = null;
+    document.querySelector(".scanner")?.remove();
+  }
+
+  $("btn-logout").onclick = () => window.CabineAuth.logout();
+  header(); go(db.secret ? "depot" : "setup");
+  window.CabineAuth.require("Registre de la cabine", () => {});
+  if (!db.secret) { show("setup"); }
+})();
+</script>

@@ -1,0 +1,555 @@
+<title>Jetons Cabine de Charge</title>
+<meta name="author" content="Giresse Mulaja">
+<!-- © 2026 GM Corporate (Giresse Mulaja). Tous droits réservés. Développeur : Giresse Mulaja, tél. +243 810 000 421, giressemulaja8@gmail.com -->
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;700&display=swap">
+<style>
+/* Mise en page : panneau de réglages à gauche, planches A4 imprimables à droite (empilés sur téléphone). */
+:root {
+  --bg: #eef1f0;
+  --panel: #ffffff;
+  --fg: #17211f;
+  --muted: #5b6b67;
+  --line: #cfd8d5;
+  --accent: #7a1414;
+  --accent-fg: #ffffff;
+  --ok: #157a3c;
+  --ok-bg: #e3f4e8;
+  --bad: #b3261e;
+  --bad-bg: #fbe7e5;
+  --paper: #ffffff;
+  --paper-shadow: 0 1px 2px rgba(20,40,35,.12), 0 8px 24px rgba(20,40,35,.10);
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "Courier New", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111816; --panel: #1a2421; --fg: #e4ece9; --muted: #98aaa5; --line: #2e3d39;
+    --accent: #ff7b55; --accent-fg: #1d0703; --ok: #6fd696; --ok-bg: #173323; --bad: #ff8a80; --bad-bg: #3a1b19;
+    --paper-shadow: 0 1px 2px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.4);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111816; --panel: #1a2421; --fg: #e4ece9; --muted: #98aaa5; --line: #2e3d39;
+  --accent: #ff7b55; --accent-fg: #1d0703; --ok: #6fd696; --ok-bg: #173323; --bad: #ff8a80; --bad-bg: #3a1b19;
+  --paper-shadow: 0 1px 2px rgba(0,0,0,.5), 0 8px 24px rgba(0,0,0,.4);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 15px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; }
+h1 { font-size: 1.7rem; font-weight: 800; letter-spacing: -.01em; }
+h2 { font-size: 1.15rem; font-weight: 600; }
+.wrap { max-width: 1240px; margin: 0 auto; display: grid; gap: 20px; }
+header.top { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 12px; }
+header.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--line); }
+.tabs button {
+  font: 500 .95rem var(--f-body); background: none; border: 0; color: var(--muted);
+  padding: 10px 14px; border-bottom: 3px solid transparent; cursor: pointer; margin-bottom: -1px;
+}
+.tabs button[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
+.tabs button:focus-visible, .btn:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 860px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 14px; }
+.field { display: grid; gap: 4px; }
+.field label { font-size: .78rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }
+.field input, .field select {
+  font: 500 1rem var(--f-body); color: var(--fg); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 6px; padding: 8px 10px; width: 100%;
+}
+.field .hint { font-size: .8rem; color: var(--muted); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.swatches button { width: 34px; height: 34px; border-radius: 50%; border: 2px solid var(--panel); box-shadow: 0 0 0 1px var(--line); cursor: pointer; }
+.swatches button[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--fg); }
+.btn {
+  font: 600 .95rem var(--f-body); border-radius: 6px; padding: 10px 14px; cursor: pointer;
+  border: 1px solid var(--accent); background: var(--accent); color: var(--accent-fg);
+}
+.btn.ghost { background: transparent; color: var(--accent); }
+.note { font-size: .85rem; color: var(--muted); background: var(--bg); border-radius: 6px; padding: 10px 12px; }
+.note strong { color: var(--fg); }
+.sheets { display: grid; gap: 24px; overflow-x: auto; padding-bottom: 8px; min-width: 0; }
+.sheets-head { display: flex; flex-wrap: wrap; gap: 8px 16px; justify-content: space-between; align-items: center; color: var(--muted); font-size: .9rem; }
+
+/* ---------- Planche A4 (imprimée en cm réels) ---------- */
+.sheet {
+  width: 21cm; min-height: 29.7cm; background: var(--paper); box-shadow: var(--paper-shadow);
+  padding: 1.1cm 1.25cm; color: #111; margin: 0 auto;
+  display: grid; grid-template-columns: repeat(2, 9.25cm); grid-auto-rows: 6.4cm; gap: .35cm 0; align-content: start;
+  justify-content: space-between;
+}
+.sheet-foot { grid-column: 1 / -1; font: 500 7.5pt var(--f-body); color: #666; display: flex; justify-content: space-between; gap: 12px; align-self: end; }
+.brand { display: inline-flex; align-items: center; gap: 8px; font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.brand img, .brandline img { background: #fff; border-radius: 6px; padding: 2px; }
+.brandline { display: inline-flex; align-items: center; gap: 6px; }
+.credits { text-align: center; color: var(--muted); font-size: .8rem; line-height: 1.5; padding-top: 8px; border-top: 1px solid var(--line); }
+.credits p { margin: 0; }
+.credits strong { color: var(--fg); }
+.credits .sel { user-select: all; white-space: nowrap; }
+.issued { border-radius: 8px; padding: 12px; display: grid; gap: 8px; font-size: .88rem; }
+.issued.bad { background: var(--bad-bg); color: var(--bad); }
+.issued.ok { background: var(--ok-bg); color: var(--ok); }
+.issued p { margin: 0; color: var(--fg); }
+.issued .btn { justify-self: start; padding: 8px 12px; font-size: .85rem; }
+.hist { font-size: .85rem; color: var(--muted); }
+.hist summary { cursor: pointer; font-weight: 600; color: var(--fg); }
+.hist ul { margin: 6px 0 0; padding-left: 1.1em; display: grid; gap: 2px; font-variant-numeric: tabular-nums; }
+.toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--fg); color: var(--panel); padding: 10px 16px; border-radius: 99px; font-weight: 600; z-index: 50; max-width: calc(100% - 32px); }
+
+.pair { display: flex; align-items: flex-start; }
+.token {
+  width: 6cm; height: 6cm; position: relative; border: 1px dashed #999; flex: none;
+}
+.stub {
+  width: 3.1cm; height: 6cm; position: relative; border: 1px dashed #999; border-left: 0; flex: none;
+}
+.token svg.bgart, .stub svg.bgart { position: absolute; inset: 0; width: 100%; height: 100%; }
+.t-in { position: absolute; inset: .28cm; display: flex; flex-direction: column; align-items: center; text-align: center; }
+.t-brand { font: 800 9pt/1.05 var(--f-display); text-transform: uppercase; letter-spacing: .02em; color: var(--ink); max-width: 100%; }
+.t-sub { font: 500 5.6pt/1.2 var(--f-body); color: #333; margin-top: 1px; }
+.t-num { font: 800 25pt/1 var(--f-display); color: var(--ink); margin-top: .12cm; letter-spacing: -.01em; font-variant-numeric: tabular-nums; }
+.t-num small { font-size: 9pt; font-weight: 600; margin-right: 2px; }
+.t-mid { display: flex; align-items: center; justify-content: space-between; gap: .15cm; margin-top: .12cm; width: 100%; }
+.t-code { font: 700 10.5pt var(--f-mono); letter-spacing: .12em; color: #111; background: #fff; padding: 1px 4px; border: 1px solid var(--ink); border-radius: 2px; }
+.t-codelbl { font: 600 4.6pt var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: #444; display: block; margin-bottom: 1px; }
+.motif { width: 1.2cm; height: 1.2cm; display: block; flex: none; }
+.t-fill { font: 500 5.4pt/1.5 var(--f-body); color: #222; margin-top: auto; width: 100%; text-align: left; background: rgba(255,255,255,.85); padding: 2px 3px; }
+.t-fill span { display: inline-block; border-bottom: .5px solid #555; min-width: .9cm; }
+.t-rule { font: 600 5pt/1.25 var(--f-body); color: #fff; background: var(--ink); width: calc(100% + .56cm); margin: 3px -.28cm -.28cm; padding: 2px 4px; }
+.t-qr { width: 1.55cm; height: 1.55cm; background: #fff; flex: none; }
+.t-low { display: flex; align-items: center; justify-content: space-between; gap: .2cm; width: 100%; margin-top: .2cm; }
+.t-hint { font: 600 5.2pt/1.3 var(--f-body); color: #333; text-align: left; background: rgba(255,255,255,.85); padding: 1px 2px; }
+.t-qr svg { display: block; width: 100%; height: 100%; }
+.cachet { flex: none; width: 1.3cm; height: 1.3cm; border: .6px dashed #888; border-radius: 50%; font: 500 4.4pt var(--f-body); color: #888; display: grid; place-items: center; text-align: center; line-height: 1.2; background: rgba(255,255,255,.6); }
+
+.s-in { position: absolute; inset: .22cm; display: flex; flex-direction: column; align-items: center; text-align: center; gap: .1cm; }
+.s-head { font: 700 5pt var(--f-body); letter-spacing: .1em; text-transform: uppercase; color: #fff; background: var(--ink); width: calc(100% + .44cm); margin: -.22cm -.22cm 0; padding: 2px 0; }
+.s-num { font: 800 16pt/1 var(--f-display); color: var(--ink); font-variant-numeric: tabular-nums; }
+.s-num small { font-size: 7pt; }
+.s-fill { font: 500 5pt/1.65 var(--f-body); color: #222; width: 100%; text-align: left; margin-top: auto; background: rgba(255,255,255,.85); }
+.s-fill span { display: block; border-bottom: .5px solid #555; height: 8.5pt; }
+.s-foot { font: 600 4.6pt/1.2 var(--f-body); color: #444; }
+.scissors { font-size: 7pt; color: #999; position: absolute; top: -6pt; left: -4pt; }
+
+/* ---------- Vérifier ---------- */
+.verify { max-width: 640px; }
+.result { border-radius: 8px; padding: 14px 16px; display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; }
+.result.ok { background: var(--ok-bg); color: var(--ok); }
+.result.bad { background: var(--bad-bg); color: var(--bad); }
+.result strong { font: 700 1.1rem var(--f-display); display: block; }
+.result p { margin: 2px 0 0; color: var(--fg); font-size: .9rem; }
+.result .motif { width: 64px; height: 64px; }
+
+/* ---------- Mode d'emploi ---------- */
+.guide { max-width: 760px; display: grid; gap: 18px; }
+.guide ol { margin: 0; padding-left: 1.3em; display: grid; gap: 10px; }
+.guide li { padding-left: 4px; }
+.guide li b { font-family: var(--f-display); }
+.guide .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.guide .cols > div { background: var(--bg); border-radius: 8px; padding: 14px; }
+.guide ul { margin: 6px 0 0; padding-left: 1.2em; }
+
+.print-only { display: none; }
+[data-only-standalone] { display: none; }
+.standalone [data-only-standalone] { display: inline-block; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.actions .status-pdf { flex-basis: 100%; font-size: .85rem; color: var(--muted); text-align: right; }
+.btn:disabled { opacity: .55; cursor: progress; }
+
+@media print {
+  @page { size: A4; margin: 0; }
+  body { background: #fff; padding: 0; }
+  .wrap { display: block; max-width: none; }
+  header.top, .tabs, .panel, .sheets-head, .credits, .toast, [data-view]:not([data-view="planche"]) { display: none !important; }
+  [data-view="planche"] { display: block !important; }
+  .layout { display: block; }
+  .sheets { display: block; overflow: visible; padding: 0; }
+  .sheet { box-shadow: none; margin: 0; page-break-after: always; break-after: page; height: 29.7cm; min-height: 0; overflow: hidden; }
+  .sheet:last-child { page-break-after: auto; break-after: auto; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  html.blocked .sheet { display: none !important; }
+  html.blocked [data-view="planche"]::before { content: "Impression refusée : ces numéros de jetons ont déjà été émis."; font: 700 16pt sans-serif; display: block; padding: 2cm; }
+}
+@media (prefers-reduced-motion: no-preference) { .tabs button { transition: color .15s, border-color .15s; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <span class="brand"><img src="%%GM_LOGO%%" alt="Logo GM Corporate" width="28" height="28">GM Corporate</span>
+      <h1>Jetons Cabine de Charge</h1>
+      <p>Chaque jeton a un numéro, un code secret et un motif uniques, calculés à partir du mot secret de la cabine. Le talon de même numéro reste collé au téléphone.</p>
+    </div>
+    <div class="actions">
+      <button class="btn" id="btn-pdf" type="button" data-only-standalone>Télécharger en PDF</button>
+      <button class="btn ghost" id="btn-print" type="button" data-only-standalone>Imprimer</button>
+      <button class="btn ghost" id="btn-logout" type="button">Se déconnecter</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-tab="planche" id="tab-planche">Planches à imprimer</button>
+    <button role="tab" aria-selected="false" data-tab="verifier" id="tab-verifier">Vérifier un jeton</button>
+    <button role="tab" aria-selected="false" data-tab="guide" id="tab-guide">Mode d'emploi</button>
+  </nav>
+
+  <!-- ===== PLANCHES ===== -->
+  <section data-view="planche">
+    <div class="layout">
+      <form class="panel" id="cfg" autocomplete="off">
+        <h2>Réglages</h2>
+        <div class="field">
+          <label for="f-name">Nom de la cabine</label>
+          <input id="f-name" value="Recharge Express" maxlength="28">
+        </div>
+        <div class="field">
+          <label for="f-sub">Adresse ou téléphone</label>
+          <input id="f-sub" value="Marché central · 06 000 00 00" maxlength="40">
+        </div>
+        <div class="field">
+          <label for="f-secret">Mot secret de la cabine</label>
+          <input id="f-secret" value="exemple-a-changer" maxlength="40">
+          <span class="hint">Seul le responsable le connaît. Sans lui, impossible de fabriquer un faux code valide.</span>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="f-serie">Série</label>
+            <select id="f-serie"></select>
+          </div>
+          <div class="field">
+            <label for="f-validity">Validité</label>
+            <select id="f-validity">
+              <option value="24 h">24 heures</option>
+              <option value="48 h">48 heures</option>
+              <option value="7 jours" selected>7 jours</option>
+            </select>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="f-start">Premier n°</label>
+            <input id="f-start" type="number" min="1" max="9999" value="1">
+          </div>
+          <div class="field">
+            <label for="f-count">Nombre de jetons</label>
+            <input id="f-count" type="number" min="1" max="400" value="16">
+          </div>
+        </div>
+        <div class="field">
+          <label id="lbl-ink">Couleur d'encre</label>
+          <div class="swatches" id="swatches" role="group" aria-labelledby="lbl-ink"></div>
+          <span class="hint">Changez de couleur et de série à chaque nouveau lot : un ancien jeton se repère tout de suite.</span>
+        </div>
+        <div id="issued-msg" aria-live="polite"></div>
+        <details class="hist" id="hist"><summary>Numéros déjà émis</summary><ul id="hist-list"></ul></details>
+        <div class="note"><strong>8 jetons par feuille A4.</strong> Téléchargez le PDF, puis imprimez-le en couleur à 100 % (taille réelle, sans « ajuster à la page »). Découpez le long des pointillés.</div>
+      </form>
+
+      <div class="sheets" id="sheets-wrap">
+        <div class="sheets-head"><span id="summary"></span><span>Aperçu à l'échelle réelle</span></div>
+        <div id="sheets" style="display:grid;gap:24px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== VÉRIFIER ===== -->
+  <section data-view="verifier" hidden>
+    <div class="panel verify">
+      <h2>Vérifier un jeton présenté par un client</h2>
+      <p style="margin:0;color:var(--muted)">Saisissez la série, le numéro et le code imprimés sur le jeton. Le mot secret utilisé est celui des réglages.</p>
+      <form id="vf" class="row2" style="grid-template-columns: 90px 1fr 1fr; align-items:end" autocomplete="off">
+        <div class="field"><label for="v-serie">Série</label><select id="v-serie"></select></div>
+        <div class="field"><label for="v-num">Numéro</label><input id="v-num" type="number" min="1" max="9999" value="7"></div>
+        <div class="field"><label for="v-code">Code</label><input id="v-code" maxlength="6" style="font-family:var(--f-mono);letter-spacing:.12em;text-transform:uppercase"></div>
+      </form>
+      <div id="v-result" aria-live="polite"></div>
+      <div class="note">Le code peut être juste et le jeton faux s'il a été photocopié. Vérifiez aussi que <strong>le talon collé sur le téléphone porte le même numéro, le même code et le même motif</strong>, et que votre cachet ou signature est bien sur le jeton.</div>
+    </div>
+  </section>
+
+  <!-- ===== MODE D'EMPLOI ===== -->
+  <section data-view="guide" hidden>
+    <div class="panel guide">
+      <h2>Comment ça marche</h2>
+      <div class="cols">
+        <div><b>Le jeton (6 × 6 cm)</b> est remis au propriétaire du téléphone.
+          <ul><li>Numéro et série</li><li>Code secret de 5 caractères</li><li>Motif unique</li><li>QR code à scanner avec l'application Registre</li><li>Micro-texte sur le contour</li><li>Place pour le cachet sec ou la signature</li></ul></div>
+        <div><b>Le talon (3 × 6 cm)</b> reste collé au dos du téléphone, avec du scotch ou un élastique.
+          <ul><li>Même numéro, même code, même motif</li><li>Modèle du téléphone</li><li>Nom du client, heure de dépôt</li></ul></div>
+      </div>
+      <h3>Au dépôt</h3>
+      <ol>
+        <li>Prenez le prochain jeton. Dans l'application <b>Registre</b>, scannez son QR code (ou tapez le numéro et le code), puis <b>photographiez le téléphone</b> et enregistrez son modèle et le <b>code de retrait</b> choisi par le client (4 chiffres, par exemple la fin de son numéro). Ce code n'est écrit nulle part sur le jeton.</li>
+        <li>Notez la date et l'heure sur le jeton et sur le talon.</li>
+        <li>Sur le talon, écrivez le modèle et la couleur du téléphone (ex. « Tecno Spark 10, bleu »), et le prénom du client.</li>
+        <li>Pressez votre <b>cachet sec</b> (pince à gaufrer) ou signez au stylo dans le rond du jeton. Une photocopie ne reproduit pas le relief.</li>
+        <li>Collez le talon sur le téléphone. Donnez le jeton au client.</li>
+      </ol>
+      <h3>Au retrait</h3>
+      <ol>
+        <li>Le client présente son jeton. Touchez le <b>relief du cachet sec</b> et vérifiez la couleur et la série du lot.</li>
+        <li>Scannez le QR dans le <b>Registre</b>. L'application dit si le jeton est faux, déjà rendu ou en dépôt. S'il est valide, elle affiche <b>la photo prise au dépôt</b> : retrouvez ce téléphone.</li>
+        <li>Demandez au client son <b>code de retrait</b> et tapez-le. Sans le bon code : demandez-lui de déverrouiller le téléphone devant vous.</li>
+        <li>Vérifiez que le talon du téléphone porte le même numéro, code et motif. Rendez le téléphone : le Registre marque le jeton « rendu ». <b>Gardez le jeton</b>.</li>
+      </ol>
+      <div class="note"><strong>Jeton perdu ?</strong> Ne rendez le téléphone qu'après une pièce d'identité et la preuve que le client peut le déverrouiller (code ou empreinte). Notez son nom sur le talon.</div>
+      <div class="note"><strong>Pourquoi un faux ne passe pas :</strong> un jeton <b>inventé</b> n'a pas le bon code (il dépend du mot secret). Une <b>copie</b> d'un jeton déjà utilisé est marquée « rendu » dans le Registre. Une <b>copie parfaite</b> présentée avant le vrai client échoue au code de retrait, qui n'est pas imprimé. Le cachet sec en relief rend en plus toute photocopie visible au toucher.</div>
+    </div>
+  </section>
+  <footer class="credits">
+    <p class="brandline"><img src="%%GM_LOGO%%" alt="" width="20" height="20"><strong>© 2026 GM Corporate.</strong> Tous droits réservés.</p>
+    <p>Développeur : Giresse Mulaja · Tél. <span class="sel">+243 810 000 421</span> · <span class="sel">giressemulaja8@gmail.com</span></p>
+  </footer>
+</div>
+
+<!--QRLIB-->
+<!--PDFLIBS-->
+<!--CORE-->
+<!--AUTH-->
+<script>
+(() => {
+  const { SERIES, pad, esc, tokenData, motifSVG } = window.CabineCore;
+  const INKS = [
+    { name: "Vert", v: "#0f6b5c" }, { name: "Bleu", v: "#1d4e9e" }, { name: "Bordeaux", v: "#8c1d3a" },
+    { name: "Violet", v: "#5b2d8e" }, { name: "Orange", v: "#b8520a" }, { name: "Noir", v: "#1b1b1b" }
+  ];
+  const $ = (id) => document.getElementById(id);
+
+
+  // QR code (bibliothèque qrcode-generator intégrée au fichier)
+  function qrSVG(text) {
+    const q = qrcode(0, "M"); q.addData(text, "Alphanumeric"); q.make();
+    const n = q.getModuleCount(); let d = "";
+    for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (q.isDark(y, x)) d += `M${x} ${y}h1v1h-1z`;
+    return `<svg viewBox="-1 -1 ${n + 2} ${n + 2}" shape-rendering="crispEdges" aria-label="QR code du jeton"><path d="${d}" fill="#000"/></svg>`;
+  }
+
+  // Fond guilloché (rosace) + micro-texte sur le contour, calculés par numéro
+  function guillocheSVG(w, h, ink, seed, seed2, micro, id) {
+    const cx = w / 2, cy = h / 2, R = Math.min(w, h) * 0.46;
+    let paths = "";
+    const k = 7 + Math.floor(seed * 5), m = 0.18 + seed2 * 0.12;
+    for (let j = 0; j < 9; j++) {
+      const rr = R * (0.35 + j * 0.075), ph = j * 0.35 + seed * 6;
+      let d = "";
+      for (let t = 0; t <= 360; t += 3) {
+        const a = t * Math.PI / 180;
+        const r = rr * (1 + m * Math.sin(k * a + ph) * Math.cos(3 * a));
+        d += (t ? "L" : "M") + (cx + r * Math.cos(a)).toFixed(1) + " " + (cy + r * Math.sin(a)).toFixed(1);
+      }
+      paths += `<path d="${d}Z"/>`;
+    }
+    const inset = 4;
+    const rp = `M${inset} ${inset}H${w - inset}V${h - inset}H${inset}Z`;
+    const txt = (micro + " · ").repeat(30);
+    return `<svg class="bgart" viewBox="0 0 ${w} ${h}" aria-hidden="true">
+      <g fill="none" stroke="${ink}" stroke-width=".35" opacity=".22">${paths}</g>
+      <rect x="2" y="2" width="${w - 4}" height="${h - 4}" fill="none" stroke="${ink}" stroke-width=".8"/>
+      <path id="${id}" d="${rp}" fill="none"/>
+      <text font-size="2.6" font-family="IBM Plex Mono, monospace" fill="${ink}" letter-spacing=".15"><textPath href="#${id}">${esc(txt)}</textPath></text>
+    </svg>`;
+  }
+
+  // ---------- Construction de l'interface ----------
+  const selSerie = $("f-serie"), vSerie = $("v-serie");
+  for (const s of SERIES) { selSerie.add(new Option(s, s)); vSerie.add(new Option(s, s)); }
+  let ink = INKS[0].v;
+  INKS.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.style.background = c.v; b.title = c.name; b.setAttribute("aria-label", "Encre " + c.name);
+    b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+    b.onclick = () => { ink = c.v; [...$("swatches").children].forEach((x) => x.setAttribute("aria-pressed", x === b ? "true" : "false")); render(); };
+    $("swatches").appendChild(b);
+  });
+
+  function cfg() {
+    return {
+      name: $("f-name").value.trim() || "Cabine de charge",
+      sub: $("f-sub").value.trim(),
+      secret: $("f-secret").value,
+      serie: selSerie.value,
+      validity: $("f-validity").value,
+      start: Math.max(1, Math.min(9999, parseInt($("f-start").value, 10) || 1)),
+      count: Math.max(1, Math.min(400, parseInt($("f-count").value, 10) || 1)),
+    };
+  }
+
+  function pairHTML(c, num, uid) {
+    const t = tokenData(c.secret, c.serie, num);
+    const micro = `${c.name} ${c.serie}-${pad(num)}`.toUpperCase();
+    // 1 cm ≈ 37.8 px ; on dessine en unités ~ px pour 6×6 cm et 3.1×6 cm
+    return `<div class="pair" style="--ink:${ink}">
+      <div class="token">
+        ${guillocheSVG(227, 227, ink, t.seed, t.seed2, micro, "mt" + uid)}
+        <div class="t-in">
+          <div class="t-brand">${esc(c.name)}</div>
+          ${c.sub ? `<div class="t-sub">${esc(c.sub)}</div>` : ""}
+          <div class="t-num"><small>${c.serie}</small>${pad(num)}</div>
+          <div class="t-mid">
+            ${motifSVG(t.bits, ink)}
+            <div><span class="t-codelbl">Code</span><span class="t-code">${t.code}</span></div>
+            <div class="t-qr">${qrSVG(`CC1:${c.serie}:${pad(num)}:${t.code}`)}</div>
+          </div>
+          <div class="t-low">
+            <div class="t-hint">Pour récupérer votre téléphone, présentez ce jeton et donnez votre code de retrait.</div>
+            <div class="cachet">cachet sec<br>signature</div>
+          </div>
+          <div class="t-fill">Déposé le <span></span> à <span></span></div>
+          <div class="t-rule">Jeton à rendre pour récupérer le téléphone · valable ${esc(c.validity)}</div>
+        </div>
+      </div>
+      <div class="stub">
+        ${guillocheSVG(117, 227, ink, t.seed2, t.seed, micro, "ms" + uid)}
+        <div class="s-in">
+          <div class="s-head">Talon téléphone</div>
+          <div class="s-num"><small>${c.serie}</small>${pad(num)}</div>
+          ${motifSVG(t.bits, ink)}
+          <span class="t-code" style="font-size:8pt">${t.code}</span>
+          <div class="s-fill">Modèle<span></span>Client<span></span>Date / heure<span></span></div>
+          <div class="s-foot">Reste collé au téléphone</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function render() {
+    const c = cfg();
+    const per = 8, nums = Array.from({ length: c.count }, (_, i) => c.start + i).filter((n) => n <= 9999);
+    let html = "";
+    for (let p = 0; p < nums.length; p += per) {
+      const chunk = nums.slice(p, p + per);
+      html += `<div class="sheet">${chunk.map((n) => pairHTML(c, n, `${c.serie}${n}`)).join("")}
+        <div class="sheet-foot"><span>${esc(c.name)} · Série ${c.serie} · n° ${pad(chunk[0])} à ${pad(chunk[chunk.length - 1])}</span><span>© 2026 Giresse Mulaja · Tous droits réservés</span><span>Feuille ${p / per + 1} / ${Math.ceil(nums.length / per)}</span></div></div>`;
+    }
+    $("sheets").innerHTML = html;
+    $("summary").textContent = `${nums.length} jeton${nums.length > 1 ? "s" : ""} · ${Math.ceil(nums.length / per)} feuille${nums.length > per ? "s" : ""} A4 · série ${c.serie}, n° ${pad(nums[0])} à ${pad(nums[nums.length - 1])}`;
+    verify();
+    checkIssued();
+  }
+
+  function verify() {
+    const c = cfg();
+    const num = parseInt($("v-num").value, 10);
+    const code = $("v-code").value.trim().toUpperCase();
+    const out = $("v-result");
+    if (!num || code.length < 5) { out.innerHTML = `<div class="note">Entrez le numéro et les 5 caractères du code.</div>`; return; }
+    const t = tokenData(c.secret, vSerie.value, num);
+    const ok = t.code === code;
+    out.innerHTML = `<div class="result ${ok ? "ok" : "bad"}">
+      ${ok ? motifSVG(t.bits, "currentColor") : `<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 8l8 8M16 8l-8 8"/></svg>`}
+      <div>${ok
+        ? `<strong>Code valide pour ${vSerie.value}-${pad(num)}</strong><p>Le motif du jeton doit ressembler exactement à celui-ci. Comparez-le aussi avec le talon du téléphone.</p>`
+        : `<strong>Code invalide</strong><p>Ce code ne correspond pas au n° ${vSerie.value}-${pad(num)}. Vérifiez la saisie (série, numéro), puis refusez le jeton s'il ne correspond toujours pas.</p>`}</div>
+    </div>`;
+  }
+
+  // Onglets
+  document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => {
+    document.querySelectorAll(".tabs button").forEach((x) => x.setAttribute("aria-selected", x === b ? "true" : "false"));
+    document.querySelectorAll("[data-view]").forEach((s) => { s.hidden = s.dataset.view !== b.dataset.tab; });
+  }));
+
+  // ---------- Numéros émis : un numéro ne sert qu'une seule fois ----------
+  const ISSUED_KEY = "cabine-emissions-v1";
+  let issued = {};
+  try { issued = JSON.parse(localStorage.getItem(ISSUED_KEY) || "{}") || {}; } catch (e) {}
+  const saveIssued = () => { try { localStorage.setItem(ISSUED_KEY, JSON.stringify(issued)); } catch (e) {} };
+  const fmtDate = (t) => new Date(t).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+  const nextFree = (serie) => (issued[serie] || []).reduce((m, r) => Math.max(m, r.to + 1), 1);
+  function overlaps(serie, from, to) { return (issued[serie] || []).filter((r) => r.from <= to && r.to >= from); }
+  function markIssued(serie, from, to, how) {
+    (issued[serie] = issued[serie] || []).push({ from, to, at: Date.now(), how });
+    saveIssued();
+    const nf = nextFree(serie);
+    if (nf <= 9999) { $("f-start").value = nf; }
+    render();
+    toast(`Série ${serie} n° ${pad(from)} à ${pad(to)} émise. Prochain numéro libre : ${pad(nf)}.`);
+  }
+  // Renvoie true si l'émission est autorisée ; sinon affiche l'alerte et bloque PDF et impression
+  function checkIssued() {
+    const c = cfg(), from = c.start, to = Math.min(9999, c.start + c.count - 1);
+    const hit = overlaps(c.serie, from, to), nf = nextFree(c.serie), box = $("issued-msg");
+    const blocked = hit.length > 0 || nf > 9999;
+    document.documentElement.classList.toggle("blocked", blocked);
+    $("btn-pdf").disabled = blocked; $("btn-print").disabled = blocked;
+    if (blocked) {
+      const r = hit[0];
+      box.innerHTML = `<div class="issued bad"><strong>Numéros déjà émis</strong>
+        <p>${r ? `Les n° ${pad(r.from)} à ${pad(r.to)} de la série ${c.serie} ont été émis le ${fmtDate(r.at)} (${esc(r.how)}).` : `La série ${c.serie} est complète.`} Un numéro ne peut servir qu'une fois : le PDF et l'impression sont bloqués.</p>
+        ${nf <= 9999 ? `<button class="btn" type="button" id="btn-next">Commencer au n° ${pad(nf)}</button>` : `<p>Choisissez une autre série.</p>`}</div>`;
+      const bn = $("btn-next"); if (bn) bn.onclick = () => { $("f-start").value = nf; render(); };
+    } else {
+      box.innerHTML = `<div class="issued ok"><strong>Numéros neufs</strong><p>Les n° ${pad(from)} à ${pad(to)} de la série ${c.serie} n'ont jamais été émis.</p></div>`;
+    }
+    const all = Object.entries(issued).flatMap(([s, rs]) => rs.map((r) => ({ s, ...r }))).sort((a, b) => b.at - a.at);
+    $("hist-list").innerHTML = all.length ? all.map((r) => `<li>Série ${r.s} · n° ${pad(r.from)} à ${pad(r.to)} · ${fmtDate(r.at)} (${esc(r.how)})</li>`).join("") : "<li>Aucun pour l'instant.</li>";
+    return !blocked;
+  }
+  let toastTimer;
+  function toast(msg) {
+    let t = document.querySelector(".toast"); if (!t) { t = document.createElement("div"); t.className = "toast"; t.setAttribute("role", "status"); document.body.appendChild(t); }
+    t.textContent = msg; clearTimeout(toastTimer); toastTimer = setTimeout(() => t.remove(), 4500);
+  }
+
+  $("cfg").addEventListener("input", render);
+  $("cfg").addEventListener("submit", (e) => e.preventDefault());
+  $("vf").addEventListener("input", verify);
+  $("vf").addEventListener("submit", (e) => e.preventDefault());
+  selSerie.addEventListener("change", () => { vSerie.value = selSerie.value; $("f-start").value = nextFree(selSerie.value); render(); });
+
+  // Bouton Imprimer : seulement quand le fichier est ouvert directement dans un navigateur
+  let standalone = false; try { standalone = window.self === window.top; } catch (e) {}
+  if (standalone) document.documentElement.classList.add("standalone");
+  // Export PDF : chaque planche est rendue en image haute définition (≈ 300 dpi) puis placée sur une page A4
+  $("btn-pdf").addEventListener("click", async () => {
+    const btn = $("btn-pdf"), c = cfg();
+    if (!window.jspdf || !window.html2canvas) return;
+    btn.disabled = true; const label = btn.textContent;
+    try {
+      document.querySelector('[data-tab="planche"]').click();
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      const sheets = [...document.querySelectorAll("#sheets .sheet")];
+      const pdf = new window.jspdf.jsPDF({ orientation: "portrait", unit: "mm", format: "a4", compress: true });
+      for (let i = 0; i < sheets.length; i++) {
+        btn.textContent = `PDF : page ${i + 1} / ${sheets.length}…`;
+        await new Promise((r) => setTimeout(r, 30));
+        const canvas = await window.html2canvas(sheets[i], { scale: 3, backgroundColor: "#ffffff", logging: false, useCORS: false });
+        if (i) pdf.addPage("a4", "portrait");
+        pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, 210, 297, undefined, "FAST");
+      }
+      const first = parseInt(c.start, 10), last = Math.min(9999, first + c.count - 1);
+      const slug = c.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").toLowerCase();
+      if (!checkIssued()) return;
+      await window.CabineCore.saveFile(`jetons-${slug}-serie-${c.serie}-${pad(first)}-${pad(last)}.pdf`, "application/pdf", pdf.output("blob"));
+      markIssued(c.serie, first, last, "PDF");
+    } catch (e) {
+      alert("Le PDF n'a pas pu être créé. Utilisez le bouton Imprimer puis « Enregistrer au format PDF ».");
+    } finally { btn.disabled = false; btn.textContent = label; }
+  });
+
+  $("btn-print").addEventListener("click", () => {
+    if (!checkIssued()) return;
+    const c = cfg(), first = c.start, last = Math.min(9999, c.start + c.count - 1);
+    document.querySelector('[data-tab="planche"]').click(); window.CabineCore.print();
+    markIssued(c.serie, first, last, "impression");
+  });
+
+  $("btn-logout").addEventListener("click", () => window.CabineAuth.logout());
+  $("f-start").value = nextFree(selSerie.value);
+  render();
+  // Exemple pré-rempli dans l'onglet Vérifier
+  $("v-code").value = tokenData(cfg().secret, "A", 7).code; verify();
+  window.CabineAuth.require("Jetons Cabine de Charge", () => {});
+})();
+</script>
